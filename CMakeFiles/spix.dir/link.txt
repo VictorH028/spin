@@ -1,0 +1,1 @@
+/data/data/com.termux/files/usr/bin/c++ -O2 -g -DNDEBUG -Xlinker --dependency-file=CMakeFiles/spix.dir/link.d CMakeFiles/spix.dir/spix.cpp.o -o spix
