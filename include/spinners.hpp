@@ -105,6 +105,7 @@ public:
     if (t.joinable()) {
       t.join();
     }
+    showCursor();
   }
 
 private:

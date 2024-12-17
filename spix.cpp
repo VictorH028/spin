@@ -30,11 +30,14 @@ int main(int argc, char *argv[]) {
 
   Spinner *spinner = new Spinner();
 
+  if (options.is_set("interval")) {
+    spinner->setInterval(std::stoi(options["interval"]));
+  }
   if (options.is_set("text")) {
     spinner->setText(options["text"]);
   }
   if (options.is_set("symbols")) {
-      spinner->setSymbols("arc");
+      spinner->setSymbols(options["symbols"].c_str());
   }
 
   spinner->start();
