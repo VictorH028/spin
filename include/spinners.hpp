@@ -5,11 +5,19 @@
 #include <iostream>
 #include <map>
 #include <sstream>
+#include <string>
 #include <thread>
 
 namespace spinners {
 
-std::map<const char *, const char *> spinnerType = {
+// Función que se ejecutará cuando se reciba una señal
+void signalHandler(int signum) {
+  std::cout << "Señal recibida: " << signum << std::endl;
+  // Aquí puedes liberar recursos, cerrar archivos, etc.
+  exit(signum); 
+}
+
+std::map<std::string, const char *> spinnerType = {
     {"dots", u8"⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"},
     {"dots2", u8"⣾⣽⣻⢿⡿⣟⣯⣷"},
     {"dots3", u8"⠋⠙⠚⠞⠖⠦⠴⠲⠳⠓"},
@@ -23,7 +31,6 @@ std::map<const char *, const char *> spinnerType = {
     {"dots11", u8"⠁⠂⠄⡀⢀⠠⠐⠈"},
     {"pipe", u8"┤┘┴└├┌┬┐"},
     {"star", u8"✶✸✹✺✹✷"},
-    {"star2", u8"+x*"},
     {"flip", u8"___-``'´-___"},
     {"hamburger", u8"☱☲☴"},
     {"growVertical", u8"▁▃▄▅▆▇▆▅▄▃"},
@@ -42,9 +49,6 @@ std::map<const char *, const char *> spinnerType = {
     {"circleHalves", u8"◐◓◑◒"},
     {"squish", u8"╫╪"},
     {"toggle", u8"⊶⊷"},
-    {"toggle2", u8"▫▪"},
-    {"toggle3", u8"□■"},
-    {"toggle4", u8"■□▪▫"},
     {"toggle5", u8"▮▯"},
     {"toggle6", u8"ဝ၀"},
     {"toggle7", u8"⦾⦿"},
@@ -56,7 +60,7 @@ std::map<const char *, const char *> spinnerType = {
     {"toggle13", u8"=*-"},
     {"arrow", u8"←↖↑↗→↘↓↙"}};
 
-const char *getSpinner(const char *key) {
+const char *getSpinner(const std::string &key) {
   auto search = spinnerType.find(key);
   if (search != spinnerType.end()) {
     return search->second;
@@ -68,18 +72,19 @@ const char *getSpinner(const char *key) {
 
 class Spinner {
 public:
-  // interval 80 , text " ", symbols "dots"
   Spinner()
       : interval(80), text(""), stop_spinner(false),
-        symbols(getSpinner("dots")) {};
-  Spinner(int _interval, std::string _text, const char *_symbols)
+        symbols(getSpinner("dots")) {}
+  Spinner(int _interval, std::string _text, const std::string &_symbols)
       : interval(_interval), text(_text), stop_spinner(false),
-        symbols(getSpinner(_symbols)) {};
-  ~Spinner() { stop(); };
+        symbols(getSpinner(_symbols)) {}
+  ~Spinner() { stop(); }
 
   void setInterval(int _interval) { interval = _interval; }
   void setText(std::string _text) { text = _text; }
-  void setSymbols(const char *_symbols) { symbols = getSpinner(_symbols); }
+  void setSymbols(const std::string &_symbols) {
+    symbols = getSpinner(_symbols);
+  }
 
   void startSpinner() {
     int len = strlen(symbols) / 3;
@@ -90,6 +95,7 @@ public:
     while (!stop_spinner) {
       i = (i >= (len - 1)) ? 0 : i + 1;
       strncpy(ch, symbols + i * 3, 3);
+      ch[3] = '\0';
       std::cout << ch << " " << text << " \r";
       std::cout.flush();
       std::this_thread::sleep_for(std::chrono::milliseconds(interval));
@@ -107,7 +113,7 @@ public:
     }
     showCursor();
   }
-  
+
 private:
   int interval;
   std::string text;
@@ -116,9 +122,9 @@ private:
   std::thread t;
 
   void hideCursor() { std::cout << "\u001b[?25l"; }
-
   void showCursor() { std::cout << "\u001b[?25h"; }
 };
+
 } // namespace spinners
 
 #endif // _SPINNERS_HPP_
