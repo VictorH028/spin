@@ -29,7 +29,7 @@ Options:
 
 > [!NOTE]
 > **Predefined Symbol**
-> circleHalves: ◐◓◑◒
+> > circleHalves: ◐◓◑◒
 
 ## Example 
 

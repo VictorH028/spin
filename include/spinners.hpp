@@ -65,7 +65,7 @@ const char *getSpinner(const std::string &key) {
   if (search != spinnerType.end()) {
     return search->second;
   } else {
-    search = spinnerType.find("dots");
+    search = spinnerType.find("circleHalves");
     return search->second;
   }
 }
@@ -74,7 +74,7 @@ class Spinner {
 public:
   Spinner()
       : interval(80), text(""), stop_spinner(false),
-        symbols(getSpinner("dots")) {}
+        symbols(getSpinner("circleHalves")) {}
   Spinner(int _interval, std::string _text, const std::string &_symbols)
       : interval(_interval), text(_text), stop_spinner(false),
         symbols(getSpinner(_symbols)) {}
