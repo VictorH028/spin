@@ -107,7 +107,7 @@ public:
     }
     showCursor();
   }
-
+  
 private:
   int interval;
   std::string text;

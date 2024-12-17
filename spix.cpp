@@ -1,8 +1,15 @@
 #include "include/optparse.hpp"
 #include "include/spinners.hpp"
+#include <memory>
 #include <sys/wait.h>
 
 using namespace spinners;
+
+void print_map(const std::map<const char *, const char *> &m){
+    for (const auto& [key , value]: m) {
+       std::cout << key << " <---> " << value << std::endl; 
+    }
+}
 
 int main(int argc, char *argv[]) {
 
@@ -24,11 +31,16 @@ int main(int argc, char *argv[]) {
       .dest("process")
       .help("Comando a ejecutar")
       .metavar("COMMAND");
+  parser.add_option("-l", "--list_symbols")
+      .dest("list")
+      .help("Lista de simbolos ")
+      .action("store_false");
 
   const optparse::Values options = parser.parse_args(argc, argv);
   const std::vector<std::string> args = parser.args();
 
-  Spinner *spinner = new Spinner();
+  // Una propiedad unica   
+  std::unique_ptr<Spinner> spinner = std::make_unique<Spinner>();
 
   if (options.is_set("interval")) {
     spinner->setInterval(std::stoi(options["interval"]));
@@ -37,7 +49,13 @@ int main(int argc, char *argv[]) {
     spinner->setText(options["text"]);
   }
   if (options.is_set("symbols")) {
-      spinner->setSymbols(options["symbols"].c_str());
+      const char *nam_sy = options["symbols"].c_str();
+      /*std::cout << nam_sy << std::endl;*/
+      spinner->setSymbols("arc");
+  }
+  if (options.is_set("list")) {
+      print_map(spinnerType); 
+      return 0;
   }
 
   spinner->start();
@@ -62,6 +80,5 @@ int main(int argc, char *argv[]) {
   }
 
   spinner->stop();
-  delete spinner;
   return 0;
 }
