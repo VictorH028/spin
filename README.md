@@ -1,3 +1,5 @@
+![alt text](./.img/loading.jpg)
+---
 # Spinner
 
 
