@@ -33,11 +33,14 @@ Options:
 
 ## Example 
 
+**Show a spinner with custom text:**
+```bash
+spix -t "Compilando..." -p "make all"
+```
 ## Contribute
 
 If you would like to contribute to this project, please fork the repository and submit a pull request.
 
 ## Reference 
 
-- [cmake](https://cmake.org/cmake/help/book/mastering-cmake/chapter/Writing%20CMakeLists%20Files.html) 
 - [optparce](https://github.com/myint/optparse)
