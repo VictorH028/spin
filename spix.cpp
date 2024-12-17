@@ -1,5 +1,6 @@
 #include "include/optparse.hpp"
 #include "include/spinners.hpp"
+#include <iterator>
 #include <memory>
 #include <sys/wait.h>
 
@@ -49,9 +50,7 @@ int main(int argc, char *argv[]) {
     spinner->setText(options["text"]);
   }
   if (options.is_set("symbols")) {
-      const char *nam_sy = options["symbols"].c_str();
-      /*std::cout << nam_sy << std::endl;*/
-      spinner->setSymbols("arc");
+      spinner->setSymbols(options["symbols"].c_str());
   }
   if (options.is_set("list")) {
       print_map(spinnerType); 
