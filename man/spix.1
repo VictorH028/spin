@@ -3,47 +3,38 @@
 .ad l
 .
 .SH NAME
-.
 spix \- Spinner
 .
 .SH SYNOPSIS
-.
 .B spix
-.RI [ OPTION ]...\&
+.RI [ OPTION ]...
 .RI [ ARG ]
+.
+.SH DESCRIPTION
+spix is a command line (CLI) tool written in C++ that displays an animated spinner while a background process is running. It is useful for visually indicating that a task is in progress, especially if the task takes a considerable amount of time.
 .
 .SH OPTIONS
 .
 .SS General options:
-.
 .TP
-.BR -h ", " --help
+.B -h, --help
 Display help and exit
-.
 .TP
-.BR -t ", " --version
-Display version and exit
-.
-.SS Configutacion:
-.
+.B -t TEXT, --text=TEXT
+Text to show
 .TP
-.B --name-user
-Change username (default i-haklab)
-.
+.B -i INT, --interval=INT
+Interval in milliseconds
 .TP
-.B --A
-aaaaaa
-.
-.PP
-Note: probando.
-.
-.SS dpkg:
-.
+.B -s STRING, --symbols=STRING
+Symbols the spinner
 .TP
-.B --f
-C
-.
+.B -p COMMAND, --process=COMMAND
+Command to execute
+.TP
+.B -l, --list_symbols
+List available spinner symbols
+
 .SH SEE ALSO
-.
-https://victorh028.github.io/spix/
-.
+https://victorh028.github.io/spix/ 
+
