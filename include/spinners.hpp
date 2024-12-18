@@ -10,13 +10,6 @@
 
 namespace spinners {
 
-// Función que se ejecutará cuando se reciba una señal
-void signalHandler(int signum) {
-  std::cout << "Señal recibida: " << signum << std::endl;
-  // Aquí puedes liberar recursos, cerrar archivos, etc.
-  exit(signum); 
-}
-
 std::map<std::string, const char *> spinnerType = {
     {"dots", u8"⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"},
     {"dots2", u8"⣾⣽⣻⢿⡿⣟⣯⣷"},
@@ -57,7 +50,6 @@ std::map<std::string, const char *> spinnerType = {
     {"toggle10", u8"㊂㊀㊁"},
     {"toggle11", u8"⧇⧆"},
     {"toggle12", u8"☗☖"},
-    {"toggle13", u8"=*-"},
     {"arrow", u8"←↖↑↗→↘↓↙"}};
 
 const char *getSpinner(const std::string &key) {
