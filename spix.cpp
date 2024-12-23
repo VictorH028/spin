@@ -1,14 +1,13 @@
 #include "include/optparse.hpp"
 #include "include/spinners.hpp"
-#include <memory>
 #include <sys/wait.h>
 
 using namespace spinners;
 
-void print_map(const std::map<std::string, const char *> &m){
-    for (const auto& [key , value]: m) {
-       std::cout << key << " <---> " << value << std::endl; 
-    }
+void print_map(const std::map<const std::string, const std::string> &m) {
+  for (const auto &[key, value] : m) {
+    std::cout << key << " <---> " << value << std::endl;
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -35,13 +34,20 @@ int main(int argc, char *argv[]) {
       .dest("list")
       .help("List of symbols")
       .action("store_false");
+  parser.add_option("-c", "--color")
+      .dest("color")
+      .help("Change text color")
+      .metavar("COLOR");
 
   const optparse::Values options = parser.parse_args(argc, argv);
   const std::vector<std::string> args = parser.args();
 
-  // Una propiedad unica   
+  // Una propiedad unica
   std::unique_ptr<Spinner> spinner = std::make_unique<Spinner>();
 
+  if (options.is_set("color")) {
+    spinner->setColor(options["color"]);
+  }
   if (options.is_set("interval")) {
     spinner->setInterval(std::stoi(options["interval"]));
   }
@@ -49,11 +55,11 @@ int main(int argc, char *argv[]) {
     spinner->setText(options["text"]);
   }
   if (options.is_set("symbols")) {
-      spinner->setSymbols(options["symbols"]);
+    spinner->setSymbols(options["symbols"]);
   }
   if (options.is_set("list")) {
-      print_map(spinnerType); 
-      return 0;
+    print_map(spinnerType);
+    return 0;
   }
 
   spinner->start();
@@ -64,8 +70,8 @@ int main(int argc, char *argv[]) {
     if (pid == 0) { // Proceso hijo
       execl("/bin/sh", "sh", "-c", command.c_str(),
             (char *)NULL); // Ejecuta el comando
-      exit(1);             
-    } else if (pid > 0) {  // Proceso padre
+      exit(1);
+    } else if (pid > 0) { // Proceso padre
       int status;
       waitpid(pid, &status, 0); // Espera a que el proceso hijo termine.
 
@@ -77,6 +83,9 @@ int main(int argc, char *argv[]) {
     sleep(5);
   }
 
-  spinner->stop();
+  if (spinner) {
+    spinner->stop();
+    spinner.reset(); // Libera la memoria
+  }
   return 0;
 }

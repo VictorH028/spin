@@ -2,15 +2,39 @@
 #define _SPINNERS_HPP_
 
 #include <chrono>
+#include <cstring>
 #include <iostream>
 #include <map>
-#include <sstream>
-#include <string>
+#include <memory>
+#include <string_view>
 #include <thread>
 
 namespace spinners {
+enum class Color { Red, Green, Blue, Yellow, Cyan, Magenta, White, Default };
+std::string colorToAnsi(Color color) {
+  switch (color) {
+  case Color::Red:
+    return "\033[31m"; // Rojo
+  case Color::Green:
+    return "\033[32m"; // Verde
+  case Color::Blue:
+    return "\033[34m"; // Azul
+  case Color::Yellow:
+    return "\033[33m"; // Amarillo
+  case Color::Cyan:
+    return "\033[36m"; // Cian
+  case Color::Magenta:
+    return "\033[35m"; // Magenta
+  case Color::White:
+    return "\033[37m"; // Blanco
+  case Color::Default:
+    return "\033[0m"; // Predeterminado
+  default:
+    return "\033[0m"; // Seguridad
+  }
+}
 
-std::map<std::string, const char *> spinnerType = {
+std::map<const std::string, const std::string> spinnerType = {
     {"dots", u8"⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"},
     {"dots2", u8"⣾⣽⣻⢿⡿⣟⣯⣷"},
     {"dots3", u8"⠋⠙⠚⠞⠖⠦⠴⠲⠳⠓"},
@@ -24,11 +48,11 @@ std::map<std::string, const char *> spinnerType = {
     {"dots11", u8"⠁⠂⠄⡀⢀⠠⠐⠈"},
     {"pipe", u8"┤┘┴└├┌┬┐"},
     {"star", u8"✶✸✹✺✹✷"},
-    {"flip", u8"___-``'´-___"},
+    {"flip", u8"___-`'´-___"},
     {"hamburger", u8"☱☲☴"},
     {"growVertical", u8"▁▃▄▅▆▇▆▅▄▃"},
     {"growHorizontal", u8"▏▎▍▌▋▊▉▊▋▌▍▎"},
-    {"balloon", u8" .oO@* "},
+    {"balloon", u8" . o O @ * "},
     {"balloon2", u8".oO°Oo."},
     {"noise", u8"▓▒░"},
     {"bounce", u8"⠁⠂⠄⠂"},
@@ -50,56 +74,68 @@ std::map<std::string, const char *> spinnerType = {
     {"toggle10", u8"㊂㊀㊁"},
     {"toggle11", u8"⧇⧆"},
     {"toggle12", u8"☗☖"},
-    {"arrow", u8"←↖↑↗→↘↓↙"}};
+    {"arrow", u8"←↖↑↗→↘↓↙"},
+    {"arrow2", u8"➞➟➠➡➠➟"},
+    {"triangle", u8"⬖⬘⬗⬙"},
+};
 
-const char *getSpinner(const std::string &key) {
+const std::string &getSpinner(const std::string &key) {
   auto search = spinnerType.find(key);
   if (search != spinnerType.end()) {
     return search->second;
-  } else {
-    search = spinnerType.find("circleHalves");
-    return search->second;
   }
+  return spinnerType["circleHalves"];
 }
 
 class Spinner {
 public:
   Spinner()
-      : interval(80), text(""), stop_spinner(false),
-        symbols(getSpinner("circleHalves")) {}
-  Spinner(int _interval, std::string _text, const std::string &_symbols)
-      : interval(_interval), text(_text), stop_spinner(false),
-        symbols(getSpinner(_symbols)) {}
+      : interval(80), text(""),
+        symbols(std::make_shared<std::string>(getSpinner("circleHalves"))),
+        stop_spinner(false), color(stringToColor("blur")) {}
+
+  Spinner(int _interval, const std::string &_text, const std::string &_symbols,
+          const std::string color_str)
+      : interval(_interval), text(_text),
+        symbols(std::make_shared<std::string>(getSpinner(_symbols))),
+        stop_spinner(false), color(stringToColor(color_str)) {}
+
   ~Spinner() { stop(); }
 
   void setInterval(int _interval) { interval = _interval; }
-  void setText(std::string _text) { text = _text; }
+  void setText(const std::string &_text) { text = _text; }
   void setSymbols(const std::string &_symbols) {
-    symbols = getSpinner(_symbols);
+    symbols = std::make_shared<std::string>(getSpinner(_symbols));
   }
+  void setColor(const std::string colorName) {
+    color = stringToColor(colorName);
+  };
 
   void startSpinner() {
-    int len = strlen(symbols) / 3;
-    int i = 0;
-    char ch[4];
+    const size_t len = symbols->size();
+    size_t i = 0;
 
     hideCursor();
-    while (!stop_spinner) {
-      i = (i >= (len - 1)) ? 0 : i + 1;
-      strncpy(ch, symbols + i * 3, 3);
-      ch[3] = '\0';
-      std::cout << ch << " " << text << " \r";
-      std::cout.flush();
-      std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+    try {
+      while (!stop_spinner.load()) {
+        // Obtener un carácter basado en UTF-8
+        std::string utf8_char = symbols->substr(i, 3); // 3 bytes por símbolo
+        i = (i + 3) % len;
+        std::cout << utf8_char << colorToAnsi(color) << " " << text << " \r"
+                  << reset() << std::flush;
+        std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+      }
+    } catch (...) {
+      showCursor();
+      throw;
     }
-
     showCursor();
   }
 
   void start() { t = std::thread(&Spinner::startSpinner, this); }
 
   void stop() {
-    stop_spinner = true;
+    stop_spinner.store(true);
     if (t.joinable()) {
       t.join();
     }
@@ -109,12 +145,30 @@ public:
 private:
   int interval;
   std::string text;
-  bool stop_spinner;
-  const char *symbols;
+  std::shared_ptr<std::string> symbols;
+  std::atomic<bool> stop_spinner;
+  Color color;
   std::thread t;
 
-  void hideCursor() { std::cout << "\u001b[?25l"; }
-  void showCursor() { std::cout << "\u001b[?25h"; }
+  Color stringToColor(const std::string &colorName) {
+    static const std::map<std::string, Color> colorMap = {
+        {"red", Color::Red},     {"green", Color::Green},
+        {"blue", Color::Blue},   {"yellow", Color::Yellow},
+        {"cyan", Color::Cyan},   {"magenta", Color::Magenta},
+        {"white", Color::White}, {"default", Color::Default}};
+
+    std::string lowerColor = colorName;
+    std::transform(lowerColor.begin(), lowerColor.end(), lowerColor.begin(),
+                   ::tolower);
+    auto it = colorMap.find(lowerColor);
+    return (it != colorMap.end()) ? it->second : Color::Default;
+  }
+
+  std::string reset() { return "\033[0m"; }
+
+  void hideCursor() { std::cout << "\u001b[?25l" << std::flush; }
+
+  void showCursor() { std::cout << "\u001b[?25h" << std::flush; }
 };
 
 } // namespace spinners
