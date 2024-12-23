@@ -8,7 +8,7 @@ spix is a command line (CLI) tool written in C++ that displays an animated spinn
 
 `git clone https://github.com/VictorH028/spix && cd  spix`
 
-    `make`
+`make`
 
 ## Usage
     
