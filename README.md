@@ -7,7 +7,8 @@ spix is a command line (CLI) tool written in C++ that displays an animated spinn
 ## Install
 
 `git clone https://github.com/VictorH028/spix && cd  spix`
-`make`
+
+    `make`
 
 ## Usage
     
@@ -25,6 +26,8 @@ Options:
   -p COMMAND, --process=COMMAND
                         Command to execute
   -l, --list_symbols    List of symbols
+  -c COLOR, --color=COLOR
+                        Change text color
 ```
 
 **It also has an integrated manual.**
@@ -37,6 +40,7 @@ Options:
 ## Example 
 
 **Show a spinner with custom text:**
+
 ```bash
 spix -t "loading..." -p "sleep 3"
 ```
@@ -65,7 +69,8 @@ import time
 # Create a Spinner object
 s = spinners.Spinner()
 
-# Set.textnand)symbols
+# Set.textnand)symbols 
+s.set_color("blue")
 s.set_text("Cargando...")
 s.set_symbols("dots")
 
