@@ -39,10 +39,10 @@ all: build-bin build-python
 build-bin: $(PREFIX)/bin/$(BIN_NAME)
 
 $(PREFIX)/bin/$(BIN_NAME): $(OBJECTS_BIN)
-	@echo "Compilando el binario $(BIN_NAME)..."
+	@echo "Compiling the binary $(BIN_NAME)..."
 	mkdir -p $(PREFIX)/bin
 	clang++ $(CXXFLAGS) $^ -o $@
-	@echo "Copiando la página de manual..."
+	@echo "Copying the man page..."
 	mkdir -p $(PREFIX)/share/man/man1/
 	cp $(MAN_PAGE) $(PREFIX)/share/man/man1/
 
@@ -61,14 +61,14 @@ $(SO_FILE): $(OBJECTS_PY)
 
 # Compilar objetos
 $(OBJ_DIR)/%.o: %.cpp
-	@echo "Compilando el archivo objeto $<..."
+	@echo "Compiling the object file $<..."
 	mkdir -p $(OBJ_DIR)
 	clang++ $(CXXFLAGS) -c $< -o $@ -I $(shell python3 -m pybind11 --includes) \
 		-I/data/data/com.termux/files/usr/include/python3.12
 
 # Página de manual predefinida
 $(MAN_PAGE):
-	@echo "Generando la página de manual..."
+	@echo "Generating the man page..."
 	mkdir -p $(MAN_DIR)
 	help2man -N --no-info --name="spix - Herramienta personalizada" -o $(MAN_PAGE) $(PREFIX)/bin/$(BIN_NAME)
 
