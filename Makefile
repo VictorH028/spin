@@ -5,7 +5,7 @@ PREFIX ?= /usr/local
 BIN_NAME = spix
 
 # Define las flags del compilador
-CXXFLAGS = -Wall -std=c++17 -O3 -fPIC 
+CXXFLAGS = -Wall -std=c++17 -O3 -fPIC
 
 # Directorio de archivos objeto
 OBJ_DIR = obj
@@ -32,13 +32,12 @@ PYTHON_SITE_PACKAGES = $(shell python3 -m site --user-site)
 MAN_DIR = man
 MAN_PAGE = $(MAN_DIR)/spix.1
 
-# Regla para todos los targets
-all: bin python
+# Reglas principales
+all: build-bin build-python
 
-# Compilar solo el binario
-bin: $(PREFIX)/bin/$(BIN_NAME)
+# Regla para compilar solo el binario
+build-bin: $(PREFIX)/bin/$(BIN_NAME)
 
-# Compilar el binario
 $(PREFIX)/bin/$(BIN_NAME): $(OBJECTS_BIN)
 	@echo "Compilando el binario $(BIN_NAME)..."
 	mkdir -p $(PREFIX)/bin
@@ -47,15 +46,15 @@ $(PREFIX)/bin/$(BIN_NAME): $(OBJECTS_BIN)
 	mkdir -p $(PREFIX)/share/man/man1/
 	cp $(MAN_PAGE) $(PREFIX)/share/man/man1/
 
-# Compilar solo el módulo Python
-python: $(SO_FILE)
+# Regla para compilar solo el módulo Python
+build-python: $(SO_FILE)
 
-# Compilar la biblioteca .so para Python
 $(SO_FILE): $(OBJECTS_PY)
 	@echo "Compilando la biblioteca Python..."
 	mkdir -p $(SO_DIR)
-	clang++ -shared $(CXXFLAGS) $(shell python3 -m pybind11 --includes)   $^ -o $@ \
-		$(shell python3-config --cflags --ldflags) -I/data/data/com.termux/files/usr/include/python3.12 -I/data/data/com.termux/files/usr/lib/python3.12/site-packages/pybind11/include
+	clang++ -shared $(CXXFLAGS) $(shell python3 -m pybind11 --includes) $^ -o $@ \
+		$(shell python3-config --cflags --ldflags) -I/data/data/com.termux/files/usr/include/python3.12 \
+		-I/data/data/com.termux/files/usr/lib/python3.12/site-packages/pybind11/include
 	@echo "Instalando el módulo Python en $(PYTHON_SITE_PACKAGES)..."
 	mkdir -p $(PYTHON_SITE_PACKAGES)
 	cp $(SO_FILE) $(PYTHON_SITE_PACKAGES)
@@ -64,7 +63,8 @@ $(SO_FILE): $(OBJECTS_PY)
 $(OBJ_DIR)/%.o: %.cpp
 	@echo "Compilando el archivo objeto $<..."
 	mkdir -p $(OBJ_DIR)
-	clang++ $(CXXFLAGS) -c $< -o $@ -I $(shell python3 -m pybind11 --includes)
+	clang++ $(CXXFLAGS) -c $< -o $@ -I $(shell python3 -m pybind11 --includes) \
+		-I/data/data/com.termux/files/usr/include/python3.12
 
 # Página de manual predefinida
 $(MAN_PAGE):
@@ -95,5 +95,5 @@ install: all
 	@echo "Instalación completada de $(BIN_NAME) y su módulo Python."
 
 # Targets auxiliares
-.PHONY: all bin python clean clean-all install uninstall
+.PHONY: all build-bin build-python clean clean-all install uninstall
 

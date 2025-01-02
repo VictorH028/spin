@@ -8,7 +8,7 @@ spix is a command line (CLI) tool written in C++ that displays an animated spinn
 
 `git clone https://github.com/VictorH028/spix && cd  spix`
 
-`make`
+`make build-bin`
 
 ## Usage
     
@@ -42,7 +42,15 @@ Options:
 **Show a spinner with custom text:**
 
 ```bash
-spix -t "loading..." -p "sleep 3"
+spix -t "Loading..." -p "sleep 3"
+```
+
+### Usage **for**
+```sh
+_pkgs=("pkg1" "pkg2" "pkg3")
+spix -p '$(for package in "${_pkgs[@]}"; do
+    echo "pkg install -y $package;"
+done)'
 ```
 
 ## Programming
@@ -58,7 +66,7 @@ pip install pybind11
 - Compilation
 
 ```
-make python
+make build-python
 ```
 #### Example
 

@@ -2,11 +2,11 @@
 #define _SPINNERS_HPP_
 
 #include <chrono>
+#include <csignal>
 #include <cstring>
 #include <iostream>
 #include <map>
 #include <memory>
-#include <string_view>
 #include <thread>
 
 namespace spinners {
@@ -137,9 +137,20 @@ public:
   void stop() {
     stop_spinner.store(true);
     if (t.joinable()) {
-      t.join();
+      try {
+        t.join();
+      } catch (...) {
+        showCursor();
+        throw;
+      }
     }
     showCursor();
+  }
+
+  // Configurar el manejador de señales
+  static void setupSignalHandlers() {
+    std::signal(SIGINT, handleSignal);
+    std::signal(SIGTERM, handleSignal);
   }
 
 private:
@@ -169,6 +180,14 @@ private:
   void hideCursor() { std::cout << "\u001b[?25l" << std::flush; }
 
   void showCursor() { std::cout << "\u001b[?25h" << std::flush; }
+
+  // Función para restaurar el cursor cuando se interrumpe el programa
+  static void handleSignal(int signal) {
+    if (signal == SIGINT) {
+        std::cout << "\u001b[?25h" << std::flush << "\nSIGINT (Ctrl+C) was received. Exiting the program cleanly...\n";
+        std::exit(signal); // Salida limpia
+    }
+  }
 };
 
 } // namespace spinners

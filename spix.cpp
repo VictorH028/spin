@@ -1,13 +1,35 @@
 #include "include/optparse.hpp"
 #include "include/spinners.hpp"
-#include <sys/wait.h>
+#include <cstdio>
+
+using std::cerr;
+using std::cout;
+using std::endl;
+using std::string;
 
 using namespace spinners;
 
-void print_map(const std::map<const std::string, const std::string> &m) {
+void print_map(const std::map<const string, const string> &m) {
   for (const auto &[key, value] : m) {
-    std::cout << key << " <---> " << value << std::endl;
+    cout << key << " <---> " << value << endl;
   }
+}
+
+void executeCommand(const string &command, bool quiet) {
+  std::string adjustedCommand = command;
+  if (quiet) {
+    adjustedCommand += " > /dev/null 2>&1";
+  }
+  int result = system(adjustedCommand.c_str());
+  if (result != 0) {
+    cerr << "Error executing  " << command << endl;
+  }
+}
+
+int run_command(const std::string &command, bool quiet) {
+  std::thread t(executeCommand, command, quiet);
+  t.join(); // Espera a que termine el hilo
+  return 0; // Puedes devolver un resultado adecuado aquí
 }
 
 int main(int argc, char *argv[]) {
@@ -38,12 +60,17 @@ int main(int argc, char *argv[]) {
       .dest("color")
       .help("Change text color")
       .metavar("COLOR");
+  parser.add_option("-q", "--quiet")
+      .dest("quiet")
+      .help("Run quietly, suppressing output")
+      .action("store_true");
 
   const optparse::Values options = parser.parse_args(argc, argv);
   const std::vector<std::string> args = parser.args();
 
   // Una propiedad unica
   std::unique_ptr<Spinner> spinner = std::make_unique<Spinner>();
+  Spinner::setupSignalHandlers();
 
   if (options.is_set("color")) {
     spinner->setColor(options["color"]);
@@ -63,20 +90,9 @@ int main(int argc, char *argv[]) {
   }
 
   spinner->start();
-
   if (options.is_set("process")) {
-    std::string command = options["process"];
-    int pid = fork();
-    if (pid == 0) { // Proceso hijo
-      execl("/bin/sh", "sh", "-c", command.c_str(),
-            (char *)NULL); // Ejecuta el comando
-      exit(1);
-    } else if (pid > 0) { // Proceso padre
-      int status;
-      waitpid(pid, &status, 0); // Espera a que el proceso hijo termine.
-
-    } else {
-      perror("fork failed");
+    int result = run_command(options["process"], options.is_set("quiet"));
+    if (result != 0) {
       return 1;
     }
   } else {
@@ -85,7 +101,7 @@ int main(int argc, char *argv[]) {
 
   if (spinner) {
     spinner->stop();
-    spinner.reset(); // Libera la memoria
+    spinner.reset(); // Delete the  memory
   }
   return 0;
 }
