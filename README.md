@@ -6,9 +6,20 @@ spix is a command line (CLI) tool written in C++ that displays an animated spinn
 
 ## Install
 
+- *Manual*
+
 `git clone https://github.com/VictorH028/spix && cd  spix`
 
 `make build-bin`
+
+- *apt*
+
+`wget -P $PREFIX/etc/apt/sources.list.d  https://raw.githubusercontent.com/VictorH028/victorh028.github.io/refs/heads/main/key/demon-termux-packages.list`
+
+`apt update`
+
+`apt install spix`
+
 
 ## Usage
     
