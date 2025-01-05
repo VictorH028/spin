@@ -48,22 +48,22 @@ $(PREFIX)/bin/$(BIN_NAME): $(OBJECTS_BIN)
 
 # Regla para compilar solo el módulo Python
 build-python: $(SO_FILE)
-
-$(SO_FILE): $(OBJECTS_PY)
-	@echo "Compilando la biblioteca Python..."
-	mkdir -p $(SO_DIR)
-	clang++ -shared $(CXXFLAGS) $(shell python3 -m pybind11 --includes) $^ -o $@ \
-		$(shell python3-config --cflags --ldflags) -I/data/data/com.termux/files/usr/include/python3.12 \
-		-I/data/data/com.termux/files/usr/lib/python3.12/site-packages/pybind11/include
-	@echo "Instalando el módulo Python en $(PYTHON_SITE_PACKAGES)..."
-	mkdir -p $(PYTHON_SITE_PACKAGES)
-	cp $(SO_FILE) $(PYTHON_SITE_PACKAGES)
-
+#
+# $(SO_FILE): $(OBJECTS_PY)
+# 	@echo "Compilando la biblioteca Python..."
+# 	mkdir -p $(SO_DIR)
+# 	clang++ -shared $(CXXFLAGS) $(shell python3 -m pybind11 --includes) $^ -o $@ \
+# 		$(shell python3-config --cflags --ldflags) -I/data/data/com.termux/files/usr/include/python3.12 \
+# 		-I/data/data/com.termux/files/usr/lib/python3.12/site-packages/pybind11/include
+# 	@echo "Instalando el módulo Python en $(PYTHON_SITE_PACKAGES)..."
+# 	mkdir -p $(PYTHON_SITE_PACKAGES)
+# 	cp $(SO_FILE) $(PYTHON_SITE_PACKAGES)
+#
 # Compilar objetos
 $(OBJ_DIR)/%.o: %.cpp
 	@echo "Compiling the object file $<..."
 	mkdir -p $(OBJ_DIR)
-	clang++ $(CXXFLAGS) -c $< -o $@ -I $(shell python3 -m pybind11 --includes) \
+	clang++ $(CXXFLAGS) -c $< -o $@ -I  \
 		-I/data/data/com.termux/files/usr/include/python3.12
 
 # Página de manual predefinida
