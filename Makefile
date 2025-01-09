@@ -45,7 +45,9 @@ $(PREFIX)/bin/$(BIN_NAME): $(OBJECTS_BIN)
 	@echo "Copying the man page..."
 	mkdir -p $(PREFIX)/share/man/man1/
 	cp $(MAN_PAGE) $(PREFIX)/share/man/man1/
-
+	@echo ""
+	mkdir -p ${PREFIX}/local/include 	
+	cp ./include/spinners.hpp ${PREFIX}/local/include  
 # Regla para compilar solo el módulo Python
 build-python: $(SO_FILE)
 
@@ -90,6 +92,7 @@ uninstall:
 	@echo "Desinstalando $(BIN_NAME) y el módulo Python..."
 	rm -f $(PREFIX)/bin/$(BIN_NAME) $(PREFIX)/share/man/man1/$(BIN_NAME).1
 	rm -f $(PYTHON_SITE_PACKAGES)/$(SO_NAME)
+	rm -f ${PREFIX}/local/include 
 	@echo "Desinstalación completa."
 
 # Instalación completa

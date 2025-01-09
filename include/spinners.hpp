@@ -1,3 +1,8 @@
+/*
+ * Autor : @demonr_rip  
+ */
+
+
 #ifndef _SPINNERS_HPP_
 #define _SPINNERS_HPP_
 
