@@ -107,6 +107,23 @@ s.start()
 time.sleep(5)
 s.stop()
 ```
+### Use in **C++**   
+
+```cpp
+#include "spinners.hpp"
+
+int main (int argc, char *argv[]) {
+    spinners::Spinner spinner;
+    spinner.setColor("red");
+    spinner.setText("Loading..");
+    spinner.setSymbols("dots");
+
+    spinner.start();
+    sleep(5);
+    spinner.stop();
+    return 0;
+}
+```
 
 ## Contribute
 
