@@ -45,7 +45,6 @@ $(PREFIX)/bin/$(BIN_NAME): $(OBJECTS_BIN)
 	@echo "Copying the man page..."
 	mkdir -p $(PREFIX)/share/man/man1/
 	cp $(MAN_PAGE) $(PREFIX)/share/man/man1/
-	@echo ""
 	mkdir -p ${PREFIX}/local/include 	
 	cp ./include/spinners.hpp ${PREFIX}/local/include  
 # Regla para compilar solo el módulo Python
@@ -65,9 +64,7 @@ $(SO_FILE): $(OBJECTS_PY)
 $(OBJ_DIR)/%.o: %.cpp
 	@echo "Compiling the object file $<..."
 	mkdir -p $(OBJ_DIR)
-	clang++ $(CXXFLAGS) -c $< -o $@   \
-		 -I/data/data/com.termux/files/usr/include/python3.12 \
-		 -I/data/data/com.termux/files/usr/lib/python3.12/site-packages/pybind11/include
+	clang++ $(CXXFLAGS) -c $< -o $@   
   
 
 # Página de manual predefinida
