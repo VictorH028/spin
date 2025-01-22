@@ -98,10 +98,7 @@ int main(int argc, char* argv[])
 
     spinner->start();
     if (options.is_set("process")) {
-        int result = SystemTermux::run_command(options["process"], options.is_set("quiet"));
-        if (result != 0) {
-            return 1;
-        }
+        SystemTermux::run_command(options["process"], options.is_set("quiet"));
     } else {
         sleep(5);
     }
