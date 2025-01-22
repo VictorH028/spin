@@ -125,10 +125,14 @@ int main (int argc, char *argv[]) {
 }
 ```
 
+> [!NOTE]
+> Project ideas obtained from [ora](https://github.com/sindresorhus/ora)
+
 ## Contribute
 
 If you would like to contribute to this project, please fork the repository and submit a pull request.
 
 ## Reference 
 
+- [ANSI Escape Sequences](https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797)
 - [optparce](https://github.com/myint/optparse)

@@ -1,7 +1,6 @@
 /*
- * Autor : @demonr_rip  
+ * Autor : @demonr_rip
  */
-
 
 #ifndef _SPINNERS_HPP_
 #define _SPINNERS_HPP_
@@ -189,8 +188,10 @@ private:
   // Función para restaurar el cursor cuando se interrumpe el programa
   static void handleSignal(int signal) {
     if (signal == SIGINT) {
-        std::cout << "\u001b[?25h" << std::flush << "\nSIGINT (Ctrl+C) was received. Exiting the program cleanly...\n";
-        std::exit(signal); // Salida limpia
+      std::cout
+          << "\u001b[?25h" << std::flush
+          << "\nSIGINT (Ctrl+C) was received. Exiting the program cleanly...\n";
+      std::exit(signal); // Salida limpia
     }
   }
 };

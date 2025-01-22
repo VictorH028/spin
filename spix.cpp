@@ -1,6 +1,5 @@
 #include "include/optparse.hpp"
 #include "include/spinners.hpp"
-#include <cstdio>
 
 using std::cerr;
 using std::cout;
@@ -15,25 +14,28 @@ void print_map(const std::map<const string, const string> &m) {
   }
 }
 
-void executeCommand(const string &command, bool quiet) {
-  std::string adjustedCommand = command;
-  if (quiet) {
-    adjustedCommand += " > /dev/null 2>&1";
+class SystemTermux {
+  int static executeCommand(const string &command, bool quiet) {
+    std::string adjustedCommand = command;
+    if (quiet) {
+      adjustedCommand += " > /dev/null 2>&1";
+    }
+    int result = system(adjustedCommand.c_str());
+    if (result != 0) {
+      cerr << "Error executing  " << command << endl;
+      return 1;
+    }
+    return 0;
   }
-  int result = system(adjustedCommand.c_str());
-  if (result != 0) {
-    cerr << "Error executing  " << command << endl;
+public:
+  int static run_command(const std::string &command, bool quiet) {
+    std::thread t(executeCommand, command, quiet);
+    t.join(); // Espera a que termine el hilo
+    return 0;
   }
-}
-
-int run_command(const std::string &command, bool quiet) {
-  std::thread t(executeCommand, command, quiet);
-  t.join(); // Espera a que termine el hilo
-  return 0; // Puedes devolver un resultado adecuado aquí
-}
+};
 
 int main(int argc, char *argv[]) {
-
   optparse::OptionParser parser = optparse::OptionParser();
   parser.add_option("-t", "--text")
       .dest("text")
@@ -91,7 +93,7 @@ int main(int argc, char *argv[]) {
 
   spinner->start();
   if (options.is_set("process")) {
-    int result = run_command(options["process"], options.is_set("quiet"));
+    int result = SystemTermux::run_command(options["process"], options.is_set("quiet"));
     if (result != 0) {
       return 1;
     }
@@ -101,7 +103,7 @@ int main(int argc, char *argv[]) {
 
   if (spinner) {
     spinner->stop();
-    spinner.reset(); // Delete the  memory
+    spinner.reset();
   }
   return 0;
 }

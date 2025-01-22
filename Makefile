@@ -5,7 +5,7 @@ PREFIX ?= /usr/local
 BIN_NAME = spix
 
 # Define las flags del compilador
-CXXFLAGS = -Wall -std=c++17 -O3 -fPIC
+CXXFLAGS = -Wall  -O3 -fPIC
 
 # Directorio de archivos objeto
 OBJ_DIR = obj
@@ -40,38 +40,38 @@ build-bin: $(PREFIX)/bin/$(BIN_NAME)
 
 $(PREFIX)/bin/$(BIN_NAME): $(OBJECTS_BIN)
 	@echo "Compiling the binary $(BIN_NAME)..."
-	mkdir -p $(PREFIX)/bin
-	clang++ $(CXXFLAGS) $^ -o $@
+	@mkdir -p $(PREFIX)/bin
+	@clang++ $(CXXFLAGS) $^ -o $@
 	@echo "Copying the man page..."
-	mkdir -p $(PREFIX)/share/man/man1/
-	cp $(MAN_PAGE) $(PREFIX)/share/man/man1/
-	mkdir -p ${PREFIX}/local/include 	
-	cp ./include/spinners.hpp ${PREFIX}/local/include  
+	@mkdir -p $(PREFIX)/share/man/man1/
+	@cp $(MAN_PAGE) $(PREFIX)/share/man/man1/
+	@mkdir -p ${PREFIX}/local/include 	
+	@cp ./include/spinners.hpp ${PREFIX}/local/include  
 # Regla para compilar solo el módulo Python
 build-python: $(SO_FILE)
 
 $(SO_FILE): $(OBJECTS_PY)
 	@echo "Compilando la biblioteca Python..."
-	mkdir -p $(SO_DIR)
-	clang++ -shared $(CXXFLAGS) $(shell python3 -m pybind11 --includes) $^ -o $@  \
+	@mkdir -p $(SO_DIR)
+	@clang++ -shared $(CXXFLAGS) $(shell python3 -m pybind11 --includes) $^ -o $@  \
 		$(shell python3-config --cflags --ldflags) -I/data/data/com.termux/files/usr/include/python3.12 \
 		-I/data/data/com.termux/files/usr/lib/python3.12/site-packages/pybind11/include
 	@echo "Instalando el módulo Python en $(PYTHON_SITE_PACKAGES)..."
-	mkdir -p $(PYTHON_SITE_PACKAGES)
-	cp $(SO_FILE) $(PYTHON_SITE_PACKAGES)
+	@mkdir -p $(PYTHON_SITE_PACKAGES)
+	@cp $(SO_FILE) $(PYTHON_SITE_PACKAGES)
 
 # Compilar objetos
 $(OBJ_DIR)/%.o: %.cpp
 	@echo "Compiling the object file $<..."
-	mkdir -p $(OBJ_DIR)
-	clang++ $(CXXFLAGS) -c $< -o $@   
+	@mkdir -p $(OBJ_DIR)
+	@clang++ $(CXXFLAGS) -c $< -o $@   
   
 
 # Página de manual predefinida
 $(MAN_PAGE):
 	@echo "Generating the man page..."
-	mkdir -p $(MAN_DIR)
-	help2man -N --no-info --name="spix - Herramienta personalizada" -o $(MAN_PAGE) $(PREFIX)/bin/$(BIN_NAME)
+	@mkdir -p $(MAN_DIR)
+	@help2man -N --no-info --name="spix - Herramienta personalizada" -o $(MAN_PAGE) $(PREFIX)/bin/$(BIN_NAME)
 
 # Limpieza de archivos generados
 clean:
