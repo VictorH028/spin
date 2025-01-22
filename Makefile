@@ -33,7 +33,12 @@ MAN_DIR = man
 MAN_PAGE = $(MAN_DIR)/spix.1
 
 # Reglas principales
-all: build-bin build-python
+all: style  build-bin build-python
+
+# Config   https://zed0.co.uk/clang-format-configurator/   
+style:
+	@clang-format -style=WebKit -dump-config > .clang-format
+	@find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\)' -exec clang-format -style=file -i {} \;
 
 # Regla para compilar solo el binario
 build-bin: $(PREFIX)/bin/$(BIN_NAME)
