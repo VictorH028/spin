@@ -1,6 +1,8 @@
-/*
- * Autor : @demonr_rip
- */
+/******************************
+ * @file   spinners.hpp
+ *
+ * @brief  Algo agradable para ver mientras se espera.
+*******************************/
 
 #ifndef _SPINNERS_HPP_
 #define _SPINNERS_HPP_
@@ -13,15 +15,32 @@
 #include <memory>
 #include <thread>
 
+#define SHOW_CURSOL "\u001b[?25h"
+#define HIDE_CURSOL "\u001b[?25l"
+
 namespace spinners {
-enum class Color { Red,
-    Green,
-    Blue,
-    Yellow,
-    Cyan,
-    Magenta,
-    White,
-    Default };
+
+/**
+ * @enum Color
+ * @brief Enumeración de colores disponibles para los spinners.
+ */
+enum class Color {
+    Red,    /**< Color rojo */
+    Green,  /**< Color verde */
+    Blue,   /**< Color azul */
+    Yellow, /**< Color amarillo */
+    Cyan,   /**< Color cian */
+    Magenta,/**< Color magenta */
+    White,  /**< Color blanco */
+    Default /**< Color predeterminado */
+};
+
+/**
+ * @brief Convierte un valor de la enumeración Color a una cadena ANSI.
+ *
+ * @param color El color a convertir.
+ * @return std::string La cadena ANSI correspondiente al color.
+ */
 std::string colorToAnsi(Color color)
 {
     switch (color) {
@@ -46,6 +65,9 @@ std::string colorToAnsi(Color color)
     }
 }
 
+/**
+ * @brief Mapa que contiene los diferentes tipos de spinners disponibles.
+ */
 std::map<const std::string, const std::string> spinnerType = {
     { "dots", u8"⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏" },
     { "dots2", u8"⣾⣽⣻⢿⡿⣟⣯⣷" },
@@ -91,6 +113,12 @@ std::map<const std::string, const std::string> spinnerType = {
     { "triangle", u8"⬖⬘⬗⬙" },
 };
 
+/**
+ * @brief Devuelve el tipo de spinner solicitado.
+ *
+ * @param key Nombre del spinner.
+ * @return const std::string& La cadena de caracteres que representa el spinner.
+ */
 const std::string& getSpinner(const std::string& key)
 {
     auto search = spinnerType.find(key);
@@ -100,8 +128,15 @@ const std::string& getSpinner(const std::string& key)
     return spinnerType["circleHalves"];
 }
 
+/**
+ * @class Spinner
+ * @brief Clase que representa un spinner animado.
+ */
 class Spinner {
 public:
+    /**
+     * @brief Constructor por defecto.
+     */
     Spinner()
         : interval(80)
         , text("")
@@ -111,6 +146,14 @@ public:
     {
     }
 
+    /**
+     * @brief Constructor con parámetros.
+     *
+     * @param _interval Intervalo de tiempo entre cada frame del spinner.
+     * @param _text Texto que se muestra junto al spinner.
+     * @param _symbols Tipo de spinner a utilizar.
+     * @param color_str Color del spinner.
+     */
     Spinner(int _interval,
         const std::string& _text,
         const std::string& _symbols,
@@ -123,19 +166,48 @@ public:
     {
     }
 
+    /**
+     * @brief Destructor.
+     */
     ~Spinner() { stop(); }
 
+    /**
+     * @brief Establece el intervalo de tiempo entre cada frame del spinner.
+     *
+     * @param _interval El intervalo de tiempo en milisegundos.
+     */
     void setInterval(int _interval) { interval = _interval; }
+
+    /**
+     * @brief Establece el texto que se muestra junto al spinner.
+     *
+     * @param _text El texto a mostrar.
+     */
     void setText(const std::string& _text) { text = _text; }
+
+    /**
+     * @brief Establece el tipo de spinner a utilizar.
+     *
+     * @param _symbols El nombre del tipo de spinner.
+     */
     void setSymbols(const std::string& _symbols)
     {
         symbols = std::make_shared<std::string>(getSpinner(_symbols));
     }
+
+    /**
+     * @brief Establece el color del spinner.
+     *
+     * @param colorName El nombre del color.
+     */
     void setColor(const std::string colorName)
     {
         color = stringToColor(colorName);
     };
 
+    /**
+     * @brief Inicia la animación del spinner.
+     */
     void startSpinner()
     {
         const size_t len = symbols->size();
@@ -158,8 +230,14 @@ public:
         showCursor();
     }
 
+    /**
+     * @brief Inicia el spinner en un hilo separado.
+     */
     void start() { t = std::thread(&Spinner::startSpinner, this); }
 
+    /**
+     * @brief Detiene la animación del spinner.
+     */
     void stop()
     {
         stop_spinner.store(true);
@@ -174,7 +252,9 @@ public:
         showCursor();
     }
 
-    // Configurar el manejador de señales
+    /**
+     * @brief Configura los manejadores de señales para una salida limpia.
+     */
     static void setupSignalHandlers()
     {
         std::signal(SIGINT, handleSignal);
@@ -182,13 +262,19 @@ public:
     }
 
 private:
-    int interval;
-    std::string text;
-    std::shared_ptr<std::string> symbols;
-    std::atomic<bool> stop_spinner;
-    Color color;
-    std::thread t;
+    int interval; /**< Intervalo de tiempo entre cada frame del spinner. */
+    std::string text; /**< Texto que se muestra junto al spinner. */
+    std::shared_ptr<std::string> symbols; /**< Símbolos que representan el spinner. */
+    std::atomic<bool> stop_spinner; /**< Bandera para detener el spinner. */
+    Color color; /**< Color del spinner. */
+    std::thread t; /**< Hilo en el que se ejecuta el spinner. */
 
+    /**
+     * @brief Convierte una cadena de texto a un valor de la enumeración Color.
+     *
+     * @param colorName El nombre del color.
+     * @return Color El valor de la enumeración Color correspondiente.
+     */
     Color stringToColor(const std::string& colorName)
     {
         static const std::map<std::string, Color> colorMap = {
@@ -205,18 +291,33 @@ private:
         return (it != colorMap.end()) ? it->second : Color::Default;
     }
 
+    /**
+     * @brief Restablece el color del terminal a su valor predeterminado.
+     *
+     * @return std::string La cadena ANSI para restablecer el color.
+     */
     std::string reset() { return "\033[0m"; }
 
-    void hideCursor() { std::cout << "\u001b[?25l" << std::flush; }
+    /**
+     * @brief Oculta el cursor del terminal.
+     */
+    void hideCursor() { std::cout << HIDE_CURSOL << std::flush; }
 
-    void showCursor() { std::cout << "\u001b[?25h" << std::flush; }
+    /**
+     * @brief Muestra el cursor del terminal.
+     */
+    void showCursor() { std::cout << SHOW_CURSOL << std::flush; }
 
-    // Función para restaurar el cursor cuando se interrumpe el programa
+    /**
+     * @brief Manejador de señales para restaurar el cursor al salir del programa.
+     *
+     * @param signal La señal recibida.
+     */
     static void handleSignal(int signal)
     {
         if (signal == SIGINT) {
             std::cout
-                << "\u001b[?25h" << std::flush
+                << SHOW_CURSOL << std::flush
                 << "\nSIGINT (Ctrl+C) was received. Exiting the program cleanly...\n";
             std::exit(signal); // Salida limpia
         }

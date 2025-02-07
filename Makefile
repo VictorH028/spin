@@ -1,6 +1,3 @@
-# Define el prefijo de instalación (puedes cambiar esto)
-PREFIX ?= /usr/local
-
 # Define el nombre del binario
 BIN_NAME = spix
 

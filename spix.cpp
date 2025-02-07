@@ -8,6 +8,9 @@ using std::string;
 
 using namespace spinners;
 
+/**
+ *
+ */
 void print_map(const std::map<const string, const string>& m)
 {
     for (const auto& [key, value] : m) {
@@ -15,6 +18,9 @@ void print_map(const std::map<const string, const string>& m)
     }
 }
 
+/**
+ *
+ */
 class SystemTermux {
     int static executeCommand(const string& command, bool quiet)
     {
@@ -30,14 +36,15 @@ class SystemTermux {
         return 0;
     }
 
-public:
-    int static run_command(const std::string& command, bool quiet)
+public: 
+    int static run_command(const std::string& command, bool quiet = false )
     {
         std::thread t(executeCommand, command, quiet);
-        t.join(); // Espera a que termine el hilo
+        t.join(); /**< Espera a que termine el hilo */
         return 0;
     }
-};
+}; // Find  SystemTermux 
+
 
 int main(int argc, char* argv[])
 {
