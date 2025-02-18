@@ -1,50 +1,20 @@
 #include "include/optparse.hpp"
 #include "include/spinners.hpp"
+#include "include/systerm.hpp"
 
-using std::cerr;
-using std::cout;
-using std::endl;
-using std::string;
 
 using namespace spinners;
 
 /**
  *
  */
-void print_map(const std::map<const string, const string>& m)
+template <typename Container>
+void print_map(Container &m)
 {
     for (const auto& [key, value] : m) {
         cout << key << " <---> " << value << endl;
     }
 }
-
-/**
- *
- */
-class SystemTermux {
-    int static executeCommand(const string& command, bool quiet)
-    {
-        std::string adjustedCommand = command;
-        if (quiet) {
-            adjustedCommand += " > /dev/null 2>&1";
-        }
-        int result = system(adjustedCommand.c_str());
-        if (result != 0) {
-            cerr << "Error executing  " << command << endl;
-            return 1;
-        }
-        return 0;
-    }
-
-public: 
-    int static run_command(const std::string& command, bool quiet = false )
-    {
-        std::thread t(executeCommand, command, quiet);
-        t.join(); /**< Espera a que termine el hilo */
-        return 0;
-    }
-}; // Find  SystemTermux 
-
 
 int main(int argc, char* argv[])
 {
@@ -84,7 +54,6 @@ int main(int argc, char* argv[])
 
     // Una propiedad unica
     std::unique_ptr<Spinner> spinner = std::make_unique<Spinner>();
-    Spinner::setupSignalHandlers();
 
     if (options.is_set("color")) {
         spinner->setColor(options["color"]);

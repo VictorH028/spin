@@ -2,7 +2,7 @@
 BIN_NAME = spix
 
 # Define las flags del compilador
-CXXFLAGS = -Wall  -O3 -fPIC
+CXXFLAGS = -Wall   -O3 -fPIC
 
 # Directorio de archivos objeto
 OBJ_DIR = obj
@@ -66,7 +66,7 @@ $(SO_FILE): $(OBJECTS_PY)
 $(OBJ_DIR)/%.o: %.cpp
 	@echo "Compiling the object file $<..."
 	@mkdir -p $(OBJ_DIR)
-	@clang++ $(CXXFLAGS) -c $< -o $@   
+	@clang++ -std=c++20 $(CXXFLAGS) -c $< -o $@   
   
 
 # Página de manual predefinida

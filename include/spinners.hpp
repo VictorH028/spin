@@ -1,8 +1,7 @@
-/******************************
- * @file   spinners.hpp
- *
- * @brief  Algo agradable para ver mientras se espera.
-*******************************/
+/** 
+ * @file spinners.hpp
+ * @brief Librería para mostrar spinners animados.
+ */
 
 #ifndef _SPINNERS_HPP_
 #define _SPINNERS_HPP_
@@ -11,27 +10,29 @@
 #include <csignal>
 #include <cstring>
 #include <iostream>
+#include <linux/time.h>
 #include <map>
 #include <memory>
 #include <thread>
+#include <format>
+
 
 #define SHOW_CURSOL "\u001b[?25h"
 #define HIDE_CURSOL "\u001b[?25l"
 
-namespace spinners {
-
+namespace spinners { 
 /**
  * @enum Color
  * @brief Enumeración de colores disponibles para los spinners.
  */
 enum class Color {
-    Red,    /**< Color rojo */
-    Green,  /**< Color verde */
-    Blue,   /**< Color azul */
+    Red, /**< Color rojo */
+    Green, /**< Color verde */
+    Blue, /**< Color azul */
     Yellow, /**< Color amarillo */
-    Cyan,   /**< Color cian */
-    Magenta,/**< Color magenta */
-    White,  /**< Color blanco */
+    Cyan, /**< Color cian */
+    Magenta, /**< Color magenta */
+    White, /**< Color blanco */
     Default /**< Color predeterminado */
 };
 
@@ -41,7 +42,7 @@ enum class Color {
  * @param color El color a convertir.
  * @return std::string La cadena ANSI correspondiente al color.
  */
-std::string colorToAnsi(Color color)
+ std::string colorToAnsi(Color color)
 {
     switch (color) {
     case Color::Red:
@@ -66,52 +67,52 @@ std::string colorToAnsi(Color color)
 }
 
 /**
- * @brief Mapa que contiene los diferentes tipos de spinners disponibles.
+ * @brief array que contiene los diferentes tipos de spinners disponibles.
  */
-std::map<const std::string, const std::string> spinnerType = {
-    { "dots", u8"⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏" },
-    { "dots2", u8"⣾⣽⣻⢿⡿⣟⣯⣷" },
-    { "dots3", u8"⠋⠙⠚⠞⠖⠦⠴⠲⠳⠓" },
-    { "dots4", u8"⠄⠆⠇⠋⠙⠸⠰⠠⠰⠸⠙⠋⠇⠆" },
-    { "dots5", u8"⠋⠙⠚⠒⠂⠂⠒⠲⠴⠦⠖⠒⠐⠐⠒⠓⠋" },
-    { "dots6", u8"⠁⠉⠙⠚⠒⠂⠂⠒⠲⠴⠤⠄⠄⠤⠴⠲⠒⠂⠂⠒⠚⠙⠉⠁" },
-    { "dots7", u8"⠈⠉⠋⠓⠒⠐⠐⠒⠖⠦⠤⠠⠠⠤⠦⠖⠒⠐⠐⠒⠓⠋⠉⠈" },
-    { "dots8", u8"⠁⠁⠉⠙⠚⠒⠂⠂⠒⠲⠴⠤⠄⠄⠤⠠⠠⠤⠦⠖⠒⠐⠐⠒⠓⠋⠉⠈⠈" },
-    { "dots9", u8"⢹⢺⢼⣸⣇⡧⡗⡏" },
-    { "dots10", u8"⢄⢂⢁⡁⡈⡐⡠" },
-    { "dots11", u8"⠁⠂⠄⡀⢀⠠⠐⠈" },
-    { "pipe", u8"┤┘┴└├┌┬┐" },
-    { "star", u8"✶✸✹✺✹✷" },
-    { "flip", u8"___-`'´-___" },
-    { "hamburger", u8"☱☲☴" },
-    { "growVertical", u8"▁▃▄▅▆▇▆▅▄▃" },
-    { "growHorizontal", u8"▏▎▍▌▋▊▉▊▋▌▍▎" },
-    { "balloon", u8" . o O @ * " },
-    { "balloon2", u8".oO°Oo." },
-    { "noise", u8"▓▒░" },
-    { "bounce", u8"⠁⠂⠄⠂" },
-    { "boxBounce", u8"▖▘▝▗" },
-    { "boxBounce2", u8"▌▀▐▄" },
-    { "triangle", u8"◢◣◤◥" },
-    { "arc", u8"◜◠◝◞◡◟" },
-    { "circle", u8"◡⊙◠" },
-    { "squareCorners", u8"◰◳◲◱" },
-    { "circleQuarters", u8"◴◷◶◵" },
-    { "circleHalves", u8"◐◓◑◒" },
-    { "squish", u8"╫╪" },
-    { "toggle", u8"⊶⊷" },
-    { "toggle5", u8"▮▯" },
-    { "toggle6", u8"ဝ၀" },
-    { "toggle7", u8"⦾⦿" },
-    { "toggle8", u8"◍◌" },
-    { "toggle9", u8"◉◎" },
-    { "toggle10", u8"㊂㊀㊁" },
-    { "toggle11", u8"⧇⧆" },
-    { "toggle12", u8"☗☖" },
-    { "arrow", u8"←↖↑↗→↘↓↙" },
-    { "arrow2", u8"➞➟➠➡➠➟" },
-    { "triangle", u8"⬖⬘⬗⬙" },
-};
+const std::array<std::pair<std::string ,std::string>,42> spinnerType = {{
+    { "dots", "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏" },
+    { "dots2", "⣾⣽⣻⢿⡿⣟⣯⣷" },
+    { "dots3", "⠋⠙⠚⠞⠖⠦⠴⠲⠳⠓" },
+    { "dots4", "⠄⠆⠇⠋⠙⠸⠰⠠⠰⠸⠙⠋⠇⠆" },
+    { "dots5", "⠋⠙⠚⠒⠂⠂⠒⠲⠴⠦⠖⠒⠐⠐⠒⠓⠋" },
+    { "dots6", "⠁⠉⠙⠚⠒⠂⠂⠒⠲⠴⠤⠄⠄⠤⠴⠲⠒⠂⠂⠒⠚⠙⠉⠁" },
+    { "dots7", "⠈⠉⠋⠓⠒⠐⠐⠒⠖⠦⠤⠠⠠⠤⠦⠖⠒⠐⠐⠒⠓⠋⠉⠈" },
+    { "dots8", "⠁⠁⠉⠙⠚⠒⠂⠂⠒⠲⠴⠤⠄⠄⠤⠠⠠⠤⠦⠖⠒⠐⠐⠒⠓⠋⠉⠈⠈" },
+    { "dots9", "⢹⢺⢼⣸⣇⡧⡗⡏" },
+    { "dots10", "⢄⢂⢁⡁⡈⡐⡠" },
+    { "dots11", "⠁⠂⠄⡀⢀⠠⠐⠈" },
+    { "pipe", "┤┘┴└├┌┬┐" },
+    { "star", "✶✸✹✺✹✷" },
+    { "flip", "___-`'´-___" },
+    { "hamburger", "☱☲☴" },
+    { "growVertical", "▁▃▄▅▆▇▆▅▄▃" },
+    { "growHorizontal", "▏▎▍▌▋▊▉▊▋▌▍▎" },
+    { "balloon", " . o O @ * " },
+    { "balloon2", ".oO°Oo." },
+    { "noise", "▓▒░" },
+    { "bounce", "⠁⠂⠄⠂" },
+    { "boxBounce", "▖▘▝▗" },
+    { "boxBounce2", "▌▀▐▄" },
+    { "triangle", "◢◣◤◥" },
+    { "arc", "◜◠◝◞◡◟" },
+    { "circle", "◡⊙◠" },
+    { "squareCorners", "◰◳◲◱" },
+    { "circleQuarters", "◴◷◶◵" },
+    { "circleHalves", "◐◓◑◒" },
+    { "squish", "╫╪" },
+    { "toggle", "⊶⊷" },
+    { "toggle5", "▮▯" },
+    { "toggle6", "ဝ၀" },
+    { "toggle7", "⦾⦿" },
+    { "toggle8", "◍◌" },
+    { "toggle9", "◉◎" },
+    { "toggle10", "㊂㊀㊁" },
+    { "toggle11", "⧇⧆" },
+    { "toggle12", "☗☖" },
+    { "arrow", "←↖↑↗→↘↓↙" },
+    { "arrow2", "➞➟➠➡➠➟" },
+    { "triangle", "⬖⬘⬗⬙" },
+}};
 
 /**
  * @brief Devuelve el tipo de spinner solicitado.
@@ -121,12 +122,23 @@ std::map<const std::string, const std::string> spinnerType = {
  */
 const std::string& getSpinner(const std::string& key)
 {
-    auto search = spinnerType.find(key);
-    if (search != spinnerType.end()) {
-        return search->second;
+    auto it = std::find_if(spinnerType.begin(), spinnerType.end(),
+        [&key](const auto& pair) { return pair.first == key; });
+    if (it != spinnerType.end()) {
+        return it->second;
     }
-    return spinnerType["circleHalves"];
+    return spinnerType[0].second; 
 }
+
+/**/
+/*const std::string& getSpinner(const std::string& key)*/
+/*{*/
+/*    auto search = spinnerType.find(key);*/
+/*    if (search != spinnerType.end()) {*/
+/*        return search->second;*/
+/*    }*/
+/*    return spinnerType["circleHalves"];*/
+/*}*/
 
 /**
  * @class Spinner
@@ -140,10 +152,11 @@ public:
     Spinner()
         : interval(80)
         , text("")
-        , symbols(std::make_shared<std::string>(getSpinner("circleHalves")))
+        , symbols(std::make_unique<std::string>(getSpinner("circleHalves")))
         , stop_spinner(false)
         , color(stringToColor("blur"))
     {
+        setupSignalHandlers();
     }
 
     /**
@@ -160,7 +173,7 @@ public:
         const std::string color_str)
         : interval(_interval)
         , text(_text)
-        , symbols(std::make_shared<std::string>(getSpinner(_symbols)))
+        , symbols(std::make_unique<std::string>(getSpinner(_symbols)))
         , stop_spinner(false)
         , color(stringToColor(color_str))
     {
@@ -192,7 +205,7 @@ public:
      */
     void setSymbols(const std::string& _symbols)
     {
-        symbols = std::make_shared<std::string>(getSpinner(_symbols));
+        symbols = std::make_unique<std::string>(getSpinner(_symbols));
     }
 
     /**
@@ -219,8 +232,9 @@ public:
                 // Obtener un carácter basado en UTF-8
                 std::string utf8_char = symbols->substr(i, 3); // 3 bytes por símbolo
                 i = (i + 3) % len;
-                std::cout << utf8_char << colorToAnsi(color) << " " << text << " \r"
-                          << reset() << std::flush;
+                std::cout << std::format("{} {} {}\r", utf8_char, colorToAnsi(color), text) << std::flush;
+               // std::cout << utf8_char << colorToAnsi(color) << " " << text << " \r"
+                //          << reset() << std::flush;
                 std::this_thread::sleep_for(std::chrono::milliseconds(interval));
             }
         } catch (...) {
@@ -255,7 +269,7 @@ public:
     /**
      * @brief Configura los manejadores de señales para una salida limpia.
      */
-    static void setupSignalHandlers()
+    void setupSignalHandlers()
     {
         std::signal(SIGINT, handleSignal);
         std::signal(SIGTERM, handleSignal);
@@ -264,7 +278,7 @@ public:
 private:
     int interval; /**< Intervalo de tiempo entre cada frame del spinner. */
     std::string text; /**< Texto que se muestra junto al spinner. */
-    std::shared_ptr<std::string> symbols; /**< Símbolos que representan el spinner. */
+    std::unique_ptr<std::string> symbols; /**< Símbolos que representan el spinner. */
     std::atomic<bool> stop_spinner; /**< Bandera para detener el spinner. */
     Color color; /**< Color del spinner. */
     std::thread t; /**< Hilo en el que se ejecuta el spinner. */
@@ -296,17 +310,17 @@ private:
      *
      * @return std::string La cadena ANSI para restablecer el color.
      */
-    std::string reset() { return "\033[0m"; }
+   std::string reset() const { return "\033[0m"; }
 
     /**
      * @brief Oculta el cursor del terminal.
      */
-    void hideCursor() { std::cout << HIDE_CURSOL << std::flush; }
+    inline void hideCursor() const { std::cout << HIDE_CURSOL << std::flush; }
 
     /**
      * @brief Muestra el cursor del terminal.
      */
-    void showCursor() { std::cout << SHOW_CURSOL << std::flush; }
+    inline void showCursor() const  { std::cout << SHOW_CURSOL << std::flush; }
 
     /**
      * @brief Manejador de señales para restaurar el cursor al salir del programa.
