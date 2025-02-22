@@ -37,6 +37,7 @@ Command line:
 Usage: spix [options]
 
 Options:
+  -v, --version         show version  
   -h, --help            show this help message and exit
   -t TEXT, --text=TEXT  Text to show
   -i INT, --interval=INT
@@ -63,6 +64,10 @@ Options:
 
 ```bash
 spix -t "Loading..." -p "sleep 3"
+```
+
+```bash 
+echo "Hola mundo" | spix -t 
 ```
 
 ### Usage **for**

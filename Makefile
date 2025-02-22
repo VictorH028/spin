@@ -1,7 +1,7 @@
-# Define el nombre del binario
+#  el nombre del binario
 BIN_NAME = spix
 
-# Define las flags del compilador
+#  las flags del compilador
 CXXFLAGS = -Wall   -O3 -fPIC
 
 # Directorio de archivos objeto
@@ -25,7 +25,7 @@ SO_FILE = $(SO_DIR)/$(SO_NAME)
 # Directorio de instalación del módulo Python
 PYTHON_SITE_PACKAGES = $(shell python3 -m site --user-site)
 
-# Define la página de manual
+#  la página de manual
 MAN_DIR = man
 MAN_PAGE = $(MAN_DIR)/spix.1
 

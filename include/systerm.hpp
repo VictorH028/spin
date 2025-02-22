@@ -11,7 +11,12 @@
 
 using namespace std;
 
-class SystemTermux {
+/** 
+ *  @brief Algunas funcionalidades para termux
+ *
+ *  @class 
+ */
+class SystemTermux { 
     int static executeCommand(const string& command, bool quiet)
     {
         std::string adjustedCommand = command;
@@ -27,6 +32,10 @@ class SystemTermux {
     }
 
 public:
+    /**
+     *  @param  string comando_nombre
+     *  @param  bool salida del comando  
+     */
     int static run_command(const std::string& command, bool quiet = false)
     {
         std::thread t(executeCommand, command, quiet);

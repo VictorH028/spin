@@ -1,4 +1,4 @@
-/** 
+/**
  * @file spinners.hpp
  * @brief Librería para mostrar spinners animados.
  */
@@ -9,18 +9,17 @@
 #include <chrono>
 #include <csignal>
 #include <cstring>
+#include <format>
 #include <iostream>
 #include <linux/time.h>
 #include <map>
 #include <memory>
 #include <thread>
-#include <format>
-
 
 #define SHOW_CURSOL "\u001b[?25h"
 #define HIDE_CURSOL "\u001b[?25l"
 
-namespace spinners { 
+namespace spinners {
 /**
  * @enum Color
  * @brief Enumeración de colores disponibles para los spinners.
@@ -42,7 +41,7 @@ enum class Color {
  * @param color El color a convertir.
  * @return std::string La cadena ANSI correspondiente al color.
  */
- std::string colorToAnsi(Color color)
+std::string colorToAnsi(Color color)
 {
     switch (color) {
     case Color::Red:
@@ -69,7 +68,7 @@ enum class Color {
 /**
  * @brief array que contiene los diferentes tipos de spinners disponibles.
  */
-const std::array<std::pair<std::string ,std::string>,42> spinnerType = {{
+const std::array<std::pair<std::string, std::string>, 42> spinnerType = { {
     { "dots", "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏" },
     { "dots2", "⣾⣽⣻⢿⡿⣟⣯⣷" },
     { "dots3", "⠋⠙⠚⠞⠖⠦⠴⠲⠳⠓" },
@@ -112,7 +111,7 @@ const std::array<std::pair<std::string ,std::string>,42> spinnerType = {{
     { "arrow", "←↖↑↗→↘↓↙" },
     { "arrow2", "➞➟➠➡➠➟" },
     { "triangle", "⬖⬘⬗⬙" },
-}};
+} };
 
 /**
  * @brief Devuelve el tipo de spinner solicitado.
@@ -127,7 +126,7 @@ const std::string& getSpinner(const std::string& key)
     if (it != spinnerType.end()) {
         return it->second;
     }
-    return spinnerType[0].second; 
+    return spinnerType[0].second;
 }
 
 /**/
@@ -233,8 +232,7 @@ public:
                 std::string utf8_char = symbols->substr(i, 3); // 3 bytes por símbolo
                 i = (i + 3) % len;
                 std::cout << std::format("{} {} {}\r", utf8_char, colorToAnsi(color), text) << std::flush;
-               // std::cout << utf8_char << colorToAnsi(color) << " " << text << " \r"
-                //          << reset() << std::flush;
+
                 std::this_thread::sleep_for(std::chrono::milliseconds(interval));
             }
         } catch (...) {
@@ -310,7 +308,7 @@ private:
      *
      * @return std::string La cadena ANSI para restablecer el color.
      */
-   std::string reset() const { return "\033[0m"; }
+    std::string reset() const { return "\033[0m"; }
 
     /**
      * @brief Oculta el cursor del terminal.
@@ -320,7 +318,7 @@ private:
     /**
      * @brief Muestra el cursor del terminal.
      */
-    inline void showCursor() const  { std::cout << SHOW_CURSOL << std::flush; }
+    inline void showCursor() const { std::cout << SHOW_CURSOL << std::flush; }
 
     /**
      * @brief Manejador de señales para restaurar el cursor al salir del programa.

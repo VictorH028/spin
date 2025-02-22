@@ -19,6 +19,10 @@ void print_map(Container &m)
 int main(int argc, char* argv[])
 {
     optparse::OptionParser parser = optparse::OptionParser();
+    parser.add_option("-v", "--version")
+        .dest("version")
+        .action("store_true")
+        .help("Show version");
     parser.add_option("-t", "--text")
         .dest("text")
         .help("Text to show ")
@@ -55,6 +59,9 @@ int main(int argc, char* argv[])
     // Una propiedad unica
     std::unique_ptr<Spinner> spinner = std::make_unique<Spinner>();
 
+    if (options.is_set("version")) {
+      cout << "Beta:👣v0.2   " << endl;
+    }
     if (options.is_set("color")) {
         spinner->setColor(options["color"]);
     }
