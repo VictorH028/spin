@@ -1,6 +1,7 @@
 #include "include/optparse.hpp"
 #include "include/spinners.hpp"
 #include "include/systerm.hpp"
+#include <iomanip>
 
 
 using namespace spinners;
@@ -14,6 +15,36 @@ void print_map(Container &m)
     for (const auto& [key, value] : m) {
         cout << key << " <---> " << value << endl;
     }
+}
+
+void print_colors(){
+    for (int i = 0; i < 16; i++) {
+        cout << "\x1b[38;5;" << i << 'm' << std::setw(4) << i;
+        if (i % 8 == 7) cout << "\x1b[0;0m\n";
+    }
+    cout << '\n';
+
+    for (int row = 0; row < 2; row++) {
+        for (int g = 0; g < 6; g++) {
+            for (int col = 0; col < 3; col++) {
+                for (int b = 0; b < 6; b++) {
+                    int r = row * 3 + col;
+                    int i = 16 + 36 * r + 6 * g + b;
+                    cout << "\x1b[38;5;" << i << 'm'  << std::setw(4) << i;
+                }
+                cout << "\x1b[0;0m";
+                if (col < 2) cout << "   ";
+            }
+            cout << '\n';
+        }
+        cout << '\n';
+    }
+
+    for (int i = 232; i < 256; i++) {
+        cout << "\x1b[38;5;" << i << 'm';// << std::setw(4) << i;
+        if (i == 243) cout << "\x1b[0;0m\n";
+    }
+    cout << "\x1b[0;0m\n\n";
 }
 
 int main(int argc, char* argv[])
@@ -48,6 +79,10 @@ int main(int argc, char* argv[])
         .dest("color")
         .help("Change text color")
         .metavar("COLOR");
+    parser.add_option("--list_colors")
+        .dest("list_colors")
+        .help("Show list colors")
+        .action("store_true");
     parser.add_option("-q", "--quiet")
         .dest("quiet")
         .help("Run quietly, suppressing output")
@@ -76,6 +111,10 @@ int main(int argc, char* argv[])
     }
     if (options.is_set("list")) {
         print_map(spinnerType);
+        return 0;
+    }
+    if (options.is_set("list_colors")) {
+        print_colors();
         return 0;
     }
 

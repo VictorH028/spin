@@ -12,58 +12,19 @@
 #include <format>
 #include <iostream>
 #include <linux/time.h>
-#include <map>
 #include <memory>
+#include <string>
 #include <thread>
 
 #define SHOW_CURSOL "\u001b[?25h"
 #define HIDE_CURSOL "\u001b[?25l"
 
-namespace spinners {
-/**
- * @enum Color
- * @brief Enumeración de colores disponibles para los spinners.
- */
-enum class Color {
-    Red, /**< Color rojo */
-    Green, /**< Color verde */
-    Blue, /**< Color azul */
-    Yellow, /**< Color amarillo */
-    Cyan, /**< Color cian */
-    Magenta, /**< Color magenta */
-    White, /**< Color blanco */
-    Default /**< Color predeterminado */
-};
+// foreground color   --- ID m 
+#define FOREGROUND_COLOR "\u001b[38;5;"
+// background color. --- ID m  
+#define BACkGROUND_COLOR "\u001b[48;5;" 
 
-/**
- * @brief Convierte un valor de la enumeración Color a una cadena ANSI.
- *
- * @param color El color a convertir.
- * @return std::string La cadena ANSI correspondiente al color.
- */
-std::string colorToAnsi(Color color)
-{
-    switch (color) {
-    case Color::Red:
-        return "\033[31m"; // Rojo
-    case Color::Green:
-        return "\033[32m"; // Verde
-    case Color::Blue:
-        return "\033[34m"; // Azul
-    case Color::Yellow:
-        return "\033[33m"; // Amarillo
-    case Color::Cyan:
-        return "\033[36m"; // Cian
-    case Color::Magenta:
-        return "\033[35m"; // Magenta
-    case Color::White:
-        return "\033[37m"; // Blanco
-    case Color::Default:
-        return "\033[0m"; // Predeterminado
-    default:
-        return "\033[0m"; // Seguridad
-    }
-}
+namespace spinners {
 
 /**
  * @brief array que contiene los diferentes tipos de spinners disponibles.
@@ -114,32 +75,6 @@ const std::array<std::pair<std::string, std::string>, 42> spinnerType = { {
 } };
 
 /**
- * @brief Devuelve el tipo de spinner solicitado.
- *
- * @param key Nombre del spinner.
- * @return const std::string& La cadena de caracteres que representa el spinner.
- */
-const std::string& getSpinner(const std::string& key)
-{
-    auto it = std::find_if(spinnerType.begin(), spinnerType.end(),
-        [&key](const auto& pair) { return pair.first == key; });
-    if (it != spinnerType.end()) {
-        return it->second;
-    }
-    return spinnerType[0].second;
-}
-
-/**/
-/*const std::string& getSpinner(const std::string& key)*/
-/*{*/
-/*    auto search = spinnerType.find(key);*/
-/*    if (search != spinnerType.end()) {*/
-/*        return search->second;*/
-/*    }*/
-/*    return spinnerType["circleHalves"];*/
-/*}*/
-
-/**
  * @class Spinner
  * @brief Clase que representa un spinner animado.
  */
@@ -153,7 +88,7 @@ public:
         , text("")
         , symbols(std::make_unique<std::string>(getSpinner("circleHalves")))
         , stop_spinner(false)
-        , color(stringToColor("blur"))
+        , color(setColor("115"))
     {
         setupSignalHandlers();
     }
@@ -169,13 +104,29 @@ public:
     Spinner(int _interval,
         const std::string& _text,
         const std::string& _symbols,
-        const std::string color_str)
+        const std::string _color)
         : interval(_interval)
         , text(_text)
         , symbols(std::make_unique<std::string>(getSpinner(_symbols)))
         , stop_spinner(false)
-        , color(stringToColor(color_str))
+        , color(setColor(_color))
     {
+    }
+
+    /**
+     * @brief Devuelve el tipo de spinner solicitado.
+     *
+     * @param key Nombre del spinner.
+     * @return const std::string& La cadena de caracteres que representa el spinner.
+     */
+    const std::string& getSpinner(const std::string& key)
+    {
+        auto it = std::find_if(spinnerType.begin(), spinnerType.end(),
+            [&key](const auto& pair) { return pair.first == key; });
+        if (it != spinnerType.end()) {
+            return it->second;
+        }
+        return spinnerType[0].second;
     }
 
     /**
@@ -211,11 +162,12 @@ public:
      * @brief Establece el color del spinner.
      *
      * @param colorName El nombre del color.
+     * @return  string color 
      */
-    void setColor(const std::string colorName)
+    std::string setColor(std::string colorName)
     {
-        color = stringToColor(colorName);
-    };
+      return color = FOREGROUND_COLOR + colorName + "m";
+    }
 
     /**
      * @brief Inicia la animación del spinner.
@@ -231,15 +183,14 @@ public:
                 // Obtener un carácter basado en UTF-8
                 std::string utf8_char = symbols->substr(i, 3); // 3 bytes por símbolo
                 i = (i + 3) % len;
-                std::cout << std::format("{} {} {}\r", utf8_char, colorToAnsi(color), text) << std::flush;
-
+                std::cout << std::format("{} {} {}\r", utf8_char, color , text) << std::flush;
                 std::this_thread::sleep_for(std::chrono::milliseconds(interval));
             }
         } catch (...) {
-            showCursor();
+            hideCursor(false);
             throw;
         }
-        showCursor();
+        hideCursor(false);
     }
 
     /**
@@ -257,11 +208,11 @@ public:
             try {
                 t.join();
             } catch (...) {
-                showCursor();
+                hideCursor(false);
                 throw;
             }
         }
-        showCursor();
+        hideCursor(false);
     }
 
     /**
@@ -278,31 +229,8 @@ private:
     std::string text; /**< Texto que se muestra junto al spinner. */
     std::unique_ptr<std::string> symbols; /**< Símbolos que representan el spinner. */
     std::atomic<bool> stop_spinner; /**< Bandera para detener el spinner. */
-    Color color; /**< Color del spinner. */
-    std::thread t; /**< Hilo en el que se ejecuta el spinner. */
-
-    /**
-     * @brief Convierte una cadena de texto a un valor de la enumeración Color.
-     *
-     * @param colorName El nombre del color.
-     * @return Color El valor de la enumeración Color correspondiente.
-     */
-    Color stringToColor(const std::string& colorName)
-    {
-        static const std::map<std::string, Color> colorMap = {
-            { "red", Color::Red }, { "green", Color::Green },
-            { "blue", Color::Blue }, { "yellow", Color::Yellow },
-            { "cyan", Color::Cyan }, { "magenta", Color::Magenta },
-            { "white", Color::White }, { "default", Color::Default }
-        };
-
-        std::string lowerColor = colorName;
-        std::transform(lowerColor.begin(), lowerColor.end(), lowerColor.begin(),
-            ::tolower);
-        auto it = colorMap.find(lowerColor);
-        return (it != colorMap.end()) ? it->second : Color::Default;
-    }
-
+    std::string color;
+    std::thread t; /**< Hilo en el que se ejecuta el spinner. */ 
     /**
      * @brief Restablece el color del terminal a su valor predeterminado.
      *
@@ -312,14 +240,16 @@ private:
 
     /**
      * @brief Oculta el cursor del terminal.
+     * @param  s (default)  true
      */
-    inline void hideCursor() const { std::cout << HIDE_CURSOL << std::flush; }
-
-    /**
-     * @brief Muestra el cursor del terminal.
-     */
-    inline void showCursor() const { std::cout << SHOW_CURSOL << std::flush; }
-
+    void hideCursor(bool s = true) const
+    {
+        if (s) {
+            std::cout << HIDE_CURSOL << std::flush;
+        } else {
+            std::cout << SHOW_CURSOL << std::flush;
+        }
+    }
     /**
      * @brief Manejador de señales para restaurar el cursor al salir del programa.
      *
