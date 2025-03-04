@@ -111,6 +111,7 @@ public:
         , stop_spinner(false)
         , color(setColor(_color))
     {
+        setupSignalHandlers();
     }
 
     /**

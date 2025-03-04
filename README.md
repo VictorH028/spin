@@ -1,15 +1,15 @@
 ![alt text](./.img/loading.jpg)
 ---
-## spix - CLI Spinner 
+## spin - CLI Spinner 
 
-spix is a command line (CLI) tool written in C++ that displays an animated spinner while a background process is running.  It is useful for visually indicating that a task is in progress, especially if the task takes a considerable amount of time.
+spin is a command line (CLI) tool written in C++ that displays an animated spinner while a background process is running.  It is useful for visually indicating that a task is in progress, especially if the task takes a considerable amount of time.
 
 ## Install
 
 - *Manual*
 
 ```
-git clone https://github.com/VictorH028/spix && cd  spix
+git clone https://github.com/VictorH028/spin && cd  spin
 ```
 ```
 make build-bin
@@ -26,7 +26,7 @@ apt update
 ```
 
 ```
-apt install spix
+apt install spin
 ```
 
 
@@ -34,7 +34,7 @@ apt install spix
     
 Command line:
 ```
-Usage: spix [options]
+Usage: spin [options]
 
 Options:
   -v, --version         show version  
@@ -46,13 +46,14 @@ Options:
                         Symbols the spinner
   -p COMMAND, --process=COMMAND
                         Command to execute
-  -l, --list_symbols    List of symbols
+  -l, --list_symbols    List of symbols 
   -c COLOR, --color=COLOR
                         Change text color
+  --list_colors         Show list colors 
 ```
 
 **It also has an integrated manual.**
-`man spix`
+`man spin`
 
 > [!NOTE]
 > **Predefined Symbol**
@@ -63,17 +64,17 @@ Options:
 **Show a spinner with custom text:**
 
 ```bash
-spix -t "Loading..." -p "sleep 3"
+spin -t "Loading..." -p "sleep 3"
 ```
 
 ```bash 
-echo "Hola mundo" | spix -t 
+echo "Hola mundo" | spin -t 
 ```
 
 ### Usage **for**
 ```sh
 _pkgs=("pkg1" "pkg2" "pkg3")
-spix -p '$(for package in "${_pkgs[@]}"; do
+spin -p '$(for package in "${_pkgs[@]}"; do
     echo "pkg install -y $package;"
 done)'
 ```

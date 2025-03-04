@@ -1,5 +1,5 @@
 #  el nombre del binario
-BIN_NAME = spix
+BIN_NAME = spin
 
 #  las flags del compilador
 CXXFLAGS = -Wall   -O3 -fPIC
@@ -11,12 +11,12 @@ OBJ_DIR = obj
 SO_DIR = lib
 
 # Archivos fuente
-CPP_SOURCES_BIN = spix.cpp
-CPP_SOURCES_PY = spix_py.cpp
+CPP_SOURCES_BIN = spin.cpp
+CPP_SOURCES_PY = spin_py.cpp
 
 # Archivos objeto
-OBJECTS_BIN = $(OBJ_DIR)/spix.o
-OBJECTS_PY = $(OBJ_DIR)/spix_py.o
+OBJECTS_BIN = $(OBJ_DIR)/spin.o
+OBJECTS_PY = $(OBJ_DIR)/spin_py.o
 
 # Compilado de la biblioteca .so para Python
 SO_NAME = spinners$(shell python3-config --extension-suffix)
@@ -27,7 +27,7 @@ PYTHON_SITE_PACKAGES = $(shell python3 -m site --user-site)
 
 #  la página de manual
 MAN_DIR = man
-MAN_PAGE = $(MAN_DIR)/spix.1
+MAN_PAGE = $(MAN_DIR)/spin.1
 
 # Reglas principales
 all: style  build-bin build-python
@@ -73,7 +73,7 @@ $(OBJ_DIR)/%.o: %.cpp
 $(MAN_PAGE):
 	@echo "Generating the man page..."
 	@mkdir -p $(MAN_DIR)
-	@help2man -N --no-info --name="spix - Herramienta personalizada" -o $(MAN_PAGE) $(PREFIX)/bin/$(BIN_NAME)
+	@help2man -N --no-info --name="spin - Herramienta personalizada" -o $(MAN_PAGE) $(PREFIX)/bin/$(BIN_NAME)
 
 # Limpieza de archivos generados
 clean:
