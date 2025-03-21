@@ -18,12 +18,12 @@ void print_map(Container &m)
 }
 
 void print_colors(){
-    for (int i = 0; i < 16; i++) {
-        cout << "\x1b[38;5;" << i << 'm' << std::setw(4) << i;
-        if (i % 8 == 7) cout << "\x1b[0;0m\n";
-    }
-    cout << '\n';
-
+    /*for (int i = 0; i < 16; i++) {*/
+    /*    cout << "\x1b[38;5;" << i << 'm' << std::setw(4) << i;*/
+    /*    if (i % 8 == 7) cout << "\x1b[0;0m\n";*/
+    /*}*/
+    /*cout << '\n';*/
+    /**/
     for (int row = 0; row < 2; row++) {
         for (int g = 0; g < 6; g++) {
             for (int col = 0; col < 3; col++) {
@@ -120,10 +120,11 @@ int main(int argc, char* argv[])
 
     spinner->start();
     if (options.is_set("process")) {
-        SystemTermux::run_command(options["process"], options.is_set("quiet"));
-    } else {
-        sleep(5);
-    }
+        std::vector<string> commands = SystemTermux::splitCommands(options["process"]);
+        SystemTermux::run_commands(commands, options.is_set("quiet"));
+    } // else {*/
+    /*    sleep(5);*/
+    /*}*/
 
     if (spinner) {
         spinner->stop();

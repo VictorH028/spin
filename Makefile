@@ -2,7 +2,7 @@
 BIN_NAME = spin
 
 #  las flags del compilador
-CXXFLAGS = -Wall   -O3 -fPIC
+CXXFLAGS = -Wall   -O3 -fPIC  
 
 # Directorio de archivos objeto
 OBJ_DIR = obj
@@ -43,7 +43,7 @@ build-bin: $(PREFIX)/bin/$(BIN_NAME)
 $(PREFIX)/bin/$(BIN_NAME): $(OBJECTS_BIN)
 	@echo "Compiling the binary $(BIN_NAME)..."
 	@mkdir -p $(PREFIX)/bin
-	@clang++ $(CXXFLAGS) $^ -o $@
+	@clang++ $(CXXFLAGS) $^ -o $@ 
 	@echo "Copying the man page..."
 	@mkdir -p $(PREFIX)/share/man/man1/
 	@cp $(MAN_PAGE) $(PREFIX)/share/man/man1/

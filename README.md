@@ -70,6 +70,11 @@ spin -t "Loading..." -p "sleep 3"
 ```bash 
 echo "Hola mundo" | spin -t 
 ```
+The option `-p` has parallel execution
+
+```bash
+spin -c 230 -p "sleep 10, sleep 15, sleep 20"
+```
 
 ### Usage **for**
 ```sh

@@ -11,21 +11,17 @@
 #include <cstring>
 #include <format>
 #include <iostream>
-#include <linux/time.h>
-#include <memory>
-#include <string>
 #include <thread>
 
 #define SHOW_CURSOL "\u001b[?25h"
 #define HIDE_CURSOL "\u001b[?25l"
 
 // foreground color   --- ID m 
-#define FOREGROUND_COLOR "\u001b[38;5;"
+#define FOREGROUND_COLOR "\x1b[38;5;"
 // background color. --- ID m  
-#define BACkGROUND_COLOR "\u001b[48;5;" 
+#define BACkGROUND_COLOR "\x1b[48;5;" 
 
 namespace spinners {
-
 /**
  * @brief array que contiene los diferentes tipos de spinners disponibles.
  */
@@ -88,7 +84,7 @@ public:
         , text("")
         , symbols(std::make_unique<std::string>(getSpinner("circleHalves")))
         , stop_spinner(false)
-        , color(setColor("115"))
+        , color("115")
     {
         setupSignalHandlers();
     }
@@ -109,7 +105,7 @@ public:
         , text(_text)
         , symbols(std::make_unique<std::string>(getSpinner(_symbols)))
         , stop_spinner(false)
-        , color(setColor(_color))
+        , color(_color)
     {
         setupSignalHandlers();
     }
@@ -162,12 +158,11 @@ public:
     /**
      * @brief Establece el color del spinner.
      *
-     * @param colorName El nombre del color.
-     * @return  string color 
+     * @param 
      */
-    std::string setColor(std::string colorName)
+    void setColor(std::string _color)
     {
-      return color = FOREGROUND_COLOR + colorName + "m";
+       color = FOREGROUND_COLOR + _color + "m";
     }
 
     /**
