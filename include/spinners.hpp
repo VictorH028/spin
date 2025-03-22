@@ -21,6 +21,7 @@
 // background color. --- ID m  
 #define BACkGROUND_COLOR "\x1b[48;5;" 
 
+
 namespace spinners {
 /**
  * @brief array que contiene los diferentes tipos de spinners disponibles.
@@ -84,7 +85,7 @@ public:
         , text("")
         , symbols(std::make_unique<std::string>(getSpinner("circleHalves")))
         , stop_spinner(false)
-        , color("115")
+        , color(setColor("115"))
     {
         setupSignalHandlers();
     }
@@ -105,7 +106,8 @@ public:
         , text(_text)
         , symbols(std::make_unique<std::string>(getSpinner(_symbols)))
         , stop_spinner(false)
-        , color(_color)
+        , color(setColor(_color))
+        
     {
         setupSignalHandlers();
     }
@@ -160,9 +162,9 @@ public:
      *
      * @param 
      */
-    void setColor(std::string _color)
+    std:: string setColor(std::string _color)
     {
-       color = FOREGROUND_COLOR + _color + "m";
+       return FOREGROUND_COLOR + _color + "m";
     }
 
     /**
@@ -172,14 +174,13 @@ public:
     {
         const size_t len = symbols->size();
         size_t i = 0;
-
         hideCursor();
         try {
             while (!stop_spinner.load()) {
                 // Obtener un carácter basado en UTF-8
                 std::string utf8_char = symbols->substr(i, 3); // 3 bytes por símbolo
                 i = (i + 3) % len;
-                std::cout << std::format("{} {} {}\r", utf8_char, color , text) << std::flush;
+                std::cout << std::format("{} {} {} \r", utf8_char, color , text ) << std::flush;
                 std::this_thread::sleep_for(std::chrono::milliseconds(interval));
             }
         } catch (...) {

@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
     parser.add_option("-s", "--symbols")
         .dest("symbols")
         .help("Symbols the spinner")
-        .metavar("STRING");
+        .metavar("NAME");
     parser.add_option("-p", "--process")
         .dest("process")
         .help("Command to execute")
@@ -83,6 +83,10 @@ int main(int argc, char* argv[])
         .dest("list_colors")
         .help("Show list colors")
         .action("store_true");
+    parser.add_option("--procs")
+        .dest("procs")
+        .help("Number of current processes")
+        .action("store_true");
     parser.add_option("-q", "--quiet")
         .dest("quiet")
         .help("Run quietly, suppressing output")
@@ -95,7 +99,7 @@ int main(int argc, char* argv[])
     std::unique_ptr<Spinner> spinner = std::make_unique<Spinner>();
 
     if (options.is_set("version")) {
-      cout << "Beta:👣v0.2   " << endl;
+      cout << "Beta:👣v0.3   " << endl;
     }
     if (options.is_set("color")) {
         spinner->setColor(options["color"]);

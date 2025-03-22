@@ -11,6 +11,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <sys/sysinfo.h>
 
 using namespace std;
 

@@ -76,6 +76,15 @@ The option `-p` has parallel execution
 spin -c 230 -p "sleep 10, sleep 15, sleep 20"
 ```
 
+```shell
+⊨ ps af                                                         ~
+  PID TTY      STAT   TIME COMMAND
+20312 pts/0    S<sl   0:00 /data/data/com.termux/files/usr/bin/fis
+20410 pts/0    T<l    0:00  \_ spin -p sleep 10, sleep 20
+20414 pts/0    T<     0:00  |   \_ sleep 10
+20415 pts/0    T<     0:00  |   \_ sleep 20
+```
+
 ### Usage **for**
 ```sh
 _pkgs=("pkg1" "pkg2" "pkg3")
