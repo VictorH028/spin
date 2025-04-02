@@ -24,6 +24,8 @@ SO_FILE = $(SO_DIR)/$(SO_NAME)
 
 # Directorio de instalación del módulo Python
 PYTHON_SITE_PACKAGES = $(shell python3 -m site --user-site)
+PYTHON_INCLUDES = $(shell pybind11-config --include)
+PYTHON_LDFLAGS := $(shell python3-config --ldflags --embed)
 
 #  la página de manual
 MAN_DIR = man
@@ -49,15 +51,13 @@ $(PREFIX)/bin/$(BIN_NAME): $(OBJECTS_BIN)
 	@cp $(MAN_PAGE) $(PREFIX)/share/man/man1/
 	@mkdir -p ${PREFIX}/local/include 	
 	@cp ./include/spinners.hpp ${PREFIX}/local/include  
+
 # Regla para compilar solo el módulo Python
 build-python: $(SO_FILE)
 
-$(SO_FILE): $(OBJECTS_PY)
+$(SO_FILE): $(OBJECTS_PY)	
 	@echo "Compilando la biblioteca Python..."
-	@mkdir -p $(SO_DIR)
-	@clang++ -shared $(CXXFLAGS) $(shell python3 -m pybind11 --includes) $^ -o $@  \
-		$(shell python3-config --cflags --ldflags) -I/data/data/com.termux/files/usr/include/python3.12 \
-		-I/data/data/com.termux/files/usr/lib/python3.12/site-packages/pybind11/include
+	@clang++ -shared $(CXXFLAGS) $^ -o $@ $(PYTHON_LDFLAGS)
 	@echo "Instalando el módulo Python en $(PYTHON_SITE_PACKAGES)..."
 	@mkdir -p $(PYTHON_SITE_PACKAGES)
 	@cp $(SO_FILE) $(PYTHON_SITE_PACKAGES)
@@ -66,7 +66,7 @@ $(SO_FILE): $(OBJECTS_PY)
 $(OBJ_DIR)/%.o: %.cpp
 	@echo "Compiling the object file $<..."
 	@mkdir -p $(OBJ_DIR)
-	@clang++ -std=c++20 $(CXXFLAGS) -c $< -o $@   
+	@clang++ -std=c++20 $(CXXFLAGS) -c $< -o $@ $(PYTHON_INCLUDES)    
   
 
 # Página de manual predefinida

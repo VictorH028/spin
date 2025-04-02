@@ -3,7 +3,6 @@
 #include "include/systerm.hpp"
 #include <iomanip>
 
-
 using namespace spinners;
 
 /**

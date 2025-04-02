@@ -9,8 +9,8 @@ PYBIND11_MODULE(spinners, m)
     m.doc() = "Spinners module to create terminal spinners with color support";
 
     // Exporta la función `getSpinner`
-    m.def("get_spinner", &spinners::getSpinner, "Get spinner symbols by name",
-        py::arg("key"));
+    /*m.def("get_spinner", &spinners::getSpinner, "Get spinner symbols by name",*/
+        /*py::arg("key"));*/
 
     // Define la clase Spinner
     py::class_<spinners::Spinner>(m, "Spinner")
@@ -27,6 +27,9 @@ PYBIND11_MODULE(spinners, m)
             "Set the text displayed with the spinner", py::arg("text"))
         .def("set_symbols", &spinners::Spinner::setSymbols,
             "Set the spinner symbols", py::arg("symbols"))
+        // En la definición de la clase Spinner, añade:
+        /*.def("get_spinner", &spinners::Spinner::getSpinner, "Get spinner symbols by name",*/
+        /*    py::arg("key"))*/
         .def("start", &spinners::Spinner::start, "Start the spinner animation")
         .def("stop", &spinners::Spinner::stop, "Stop the spinner animation");
 }

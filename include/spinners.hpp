@@ -111,23 +111,6 @@ public:
     {
         setupSignalHandlers();
     }
-
-    /**
-     * @brief Devuelve el tipo de spinner solicitado.
-     *
-     * @param key Nombre del spinner.
-     * @return const std::string& La cadena de caracteres que representa el spinner.
-     */
-    const std::string& getSpinner(const std::string& key)
-    {
-        auto it = std::find_if(spinnerType.begin(), spinnerType.end(),
-            [&key](const auto& pair) { return pair.first == key; });
-        if (it != spinnerType.end()) {
-            return it->second;
-        }
-        return spinnerType[0].second;
-    }
-
     /**
      * @brief Destructor.
      */
@@ -220,6 +203,8 @@ public:
         std::signal(SIGINT, handleSignal);
         std::signal(SIGTERM, handleSignal);
     }
+ 
+
 
 private:
     int interval; /**< Intervalo de tiempo entre cada frame del spinner. */
@@ -228,6 +213,27 @@ private:
     std::atomic<bool> stop_spinner; /**< Bandera para detener el spinner. */
     std::string color;
     std::thread t; /**< Hilo en el que se ejecuta el spinner. */ 
+  
+
+
+    /**
+     * @brief Devuelve el tipo de spinner solicitado.
+     *
+     * @param key Nombre del spinner.
+     * @return const std::string& La cadena de caracteres que representa el spinner.
+     */
+    const std::string& getSpinner(const std::string& key)
+    {
+        auto it = std::find_if(spinnerType.begin(), spinnerType.end(),
+            [&key](const auto& pair) { return pair.first == key; });
+        if (it != spinnerType.end()) {
+            return it->second;
+        }
+        return spinnerType[0].second;
+    }
+
+
+
     /**
      * @brief Restablece el color del terminal a su valor predeterminado.
      *
