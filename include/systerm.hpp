@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <string>
+#include <sys/sysinfo.h>
 #include <thread>
 #include <vector>
 
@@ -33,6 +34,14 @@ class SystemTermux {
     }
 
 public:
+    SystemTermux()
+    {
+        struct sysinfo info;
+        if (sysinfo(&info)) {
+            cerr << "[ERROR] : ----";
+        }
+    }
+
     static std::vector<std::string> splitCommands(const std::string input)
     {
         std::vector<std::string> commands;

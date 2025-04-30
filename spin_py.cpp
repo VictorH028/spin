@@ -10,7 +10,7 @@ PYBIND11_MODULE(spinners, m)
 
     // Exporta la función `getSpinner`
     /*m.def("get_spinner", &spinners::getSpinner, "Get spinner symbols by name",*/
-        /*py::arg("key"));*/
+    /*py::arg("key"));*/
 
     // Define la clase Spinner
     py::class_<spinners::Spinner>(m, "Spinner")

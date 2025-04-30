@@ -16,11 +16,8 @@
 #define SHOW_CURSOL "\u001b[?25h"
 #define HIDE_CURSOL "\u001b[?25l"
 
-// foreground color   --- ID m 
-#define FOREGROUND_COLOR "\x1b[38;5;"
-// background color. --- ID m  
-#define BACkGROUND_COLOR "\x1b[48;5;" 
-
+#define FOREGROUND_COLOR "\x1b[38;5;" // ID  m
+#define BACKGROUND_COLOR "\x1b[48;5;" // ID m
 
 namespace spinners {
 /**
@@ -85,11 +82,10 @@ public:
         , text("")
         , symbols(std::make_unique<std::string>(getSpinner("circleHalves")))
         , stop_spinner(false)
-        , color(setColor("115"))
+        , color(getColor())
     {
         setupSignalHandlers();
     }
-
     /**
      * @brief Constructor con parámetros.
      *
@@ -106,8 +102,7 @@ public:
         , text(_text)
         , symbols(std::make_unique<std::string>(getSpinner(_symbols)))
         , stop_spinner(false)
-        , color(setColor(_color))
-        
+        , color(getColor())
     {
         setupSignalHandlers();
     }
@@ -115,7 +110,6 @@ public:
      * @brief Destructor.
      */
     ~Spinner() { stop(); }
-
     /**
      * @brief Establece el intervalo de tiempo entre cada frame del spinner.
      *
@@ -143,13 +137,17 @@ public:
     /**
      * @brief Establece el color del spinner.
      *
-     * @param 
+     * @param
      */
-    std:: string setColor(std::string _color)
+    void setColor(std::string _color)
     {
-       return FOREGROUND_COLOR + _color + "m";
+        color = FOREGROUND_COLOR + _color + "m";
     }
 
+    std::string getColor()
+    {
+        return color;
+    }
     /**
      * @brief Inicia la animación del spinner.
      */
@@ -163,7 +161,7 @@ public:
                 // Obtener un carácter basado en UTF-8
                 std::string utf8_char = symbols->substr(i, 3); // 3 bytes por símbolo
                 i = (i + 3) % len;
-                std::cout << std::format("{} {} {} \r", utf8_char, color , text ) << std::flush;
+                std::cout << std::format("{} {} {} \r", utf8_char, color, text) << std::flush;
                 std::this_thread::sleep_for(std::chrono::milliseconds(interval));
             }
         } catch (...) {
@@ -203,8 +201,6 @@ public:
         std::signal(SIGINT, handleSignal);
         std::signal(SIGTERM, handleSignal);
     }
- 
-
 
 private:
     int interval; /**< Intervalo de tiempo entre cada frame del spinner. */
@@ -212,9 +208,7 @@ private:
     std::unique_ptr<std::string> symbols; /**< Símbolos que representan el spinner. */
     std::atomic<bool> stop_spinner; /**< Bandera para detener el spinner. */
     std::string color;
-    std::thread t; /**< Hilo en el que se ejecuta el spinner. */ 
-  
-
+    std::thread t; /**< Hilo en el que se ejecuta el spinner. */
 
     /**
      * @brief Devuelve el tipo de spinner solicitado.
@@ -231,8 +225,6 @@ private:
         }
         return spinnerType[0].second;
     }
-
-
 
     /**
      * @brief Restablece el color del terminal a su valor predeterminado.
@@ -268,7 +260,6 @@ private:
         }
     }
 };
-
 } // namespace spinners
 
 #endif // _SPINNERS_HPP_

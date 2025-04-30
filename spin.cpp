@@ -9,14 +9,15 @@ using namespace spinners;
  *
  */
 template <typename Container>
-void print_map(Container &m)
+void print_map(Container& m)
 {
     for (const auto& [key, value] : m) {
         cout << key << " <---> " << value << endl;
     }
 }
 
-void print_colors(){
+void print_colors()
+{
     /*for (int i = 0; i < 16; i++) {*/
     /*    cout << "\x1b[38;5;" << i << 'm' << std::setw(4) << i;*/
     /*    if (i % 8 == 7) cout << "\x1b[0;0m\n";*/
@@ -29,10 +30,11 @@ void print_colors(){
                 for (int b = 0; b < 6; b++) {
                     int r = row * 3 + col;
                     int i = 16 + 36 * r + 6 * g + b;
-                    cout << "\x1b[38;5;" << i << 'm'  << std::setw(4) << i;
+                    cout << "\x1b[38;5;" << i << 'm' << std::setw(4) << i;
                 }
                 cout << "\x1b[0;0m";
-                if (col < 2) cout << "   ";
+                if (col < 2)
+                    cout << "   ";
             }
             cout << '\n';
         }
@@ -40,8 +42,9 @@ void print_colors(){
     }
 
     for (int i = 232; i < 256; i++) {
-        cout << "\x1b[38;5;" << i << 'm';// << std::setw(4) << i;
-        if (i == 243) cout << "\x1b[0;0m\n";
+        cout << "\x1b[38;5;" << i << 'm'; // << std::setw(4) << i;
+        if (i == 243)
+            cout << "\x1b[0;0m\n";
     }
     cout << "\x1b[0;0m\n\n";
 }
@@ -98,7 +101,7 @@ int main(int argc, char* argv[])
     std::unique_ptr<Spinner> spinner = std::make_unique<Spinner>();
 
     if (options.is_set("version")) {
-      cout << "Beta:👣v0.3   " << endl;
+        cout << "Beta:👣v0.3   " << endl;
     }
     if (options.is_set("color")) {
         spinner->setColor(options["color"]);
