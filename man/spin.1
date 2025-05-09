@@ -1,17 +1,17 @@
-.TH SPIX 1 "Dec 2024" "" "General Commands Manual"
+.TH spin 1 "Dec 2024" "" "General Commands Manual"
 .nh
 .ad l
 .
 .SH NAME
-spixx \- Spinner
+SPIN \- Spinner
 .
 .SH SYNOPSIS
-.B spix
+.B spin
 .RI [ OPTION ]...
 .RI [ ARG ]
 .
 .SH DESCRIPTION
-spix is a command line (CLI) tool written in C++ that displays an animated spinner while a background process is running. It is useful for visually indicating that a task is in progress, especially if the task takes a considerable amount of time.
+spin is a command line (CLI) tool written in C++ that displays an animated spinner while a background process is running. It is useful for visually indicating that a task is in progress, especially if the task takes a considerable amount of time.
 .
 .SH OPTIONS
 .
@@ -45,8 +45,8 @@ Change text color
 Show list colors 
 
 .SH EXAMPLES 
-spix -t "Hola Mundo" -c 105 
+spin -t "Loading.." -c 105 -p "sleep 2" 
 
 .SH SEE ALSO
-https://victorh028.github.io/spix/ 
+https://victorh028.github.io/spin/ 
 
