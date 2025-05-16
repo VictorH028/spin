@@ -3,18 +3,6 @@
 #include "include/systerm.hpp"
 #include <iomanip>
 
-using namespace spinners;
-
-/**
- *
- */
-template <typename Container>
-void print_map(Container& m)
-{
-    for (const auto& [key, value] : m) {
-        cout << key << " <---> " << value << endl;
-    }
-}
 
 void print_colors()
 {
@@ -77,6 +65,10 @@ int main(int argc, char* argv[])
         .dest("list")
         .help("List of symbols")
         .action("store_false");
+    parser.add_option("-s","--style")
+        .dest("style")
+        .help("Show style")
+        .action("store_false");
     parser.add_option("-c", "--color")
         .dest("color")
         .help("Change text color")
@@ -97,26 +89,28 @@ int main(int argc, char* argv[])
     const optparse::Values options = parser.parse_args(argc, argv);
     const std::vector<std::string> args = parser.args();
 
-    // Una propiedad unica
-    std::unique_ptr<Spinner> spinner = std::make_unique<Spinner>();
+    Spinner spinner;
 
     if (options.is_set("version")) {
-        cout << "Beta:👣v0.3   " << endl;
+        cout << "Beta:👣v4.5   " << endl;
     }
     if (options.is_set("color")) {
-        spinner->setColor(options["color"]);
+        spinner.setColor(FOREGROUND_COLOR + options["color"] + "m" );
     }
     if (options.is_set("interval")) {
-        spinner->setInterval(std::stoi(options["interval"]));
+        spinner.setInterval(std::stoi(options["interval"]));
     }
     if (options.is_set("text")) {
-        spinner->setText(options["text"]);
+        spinner.setText(options["text"]);
     }
     if (options.is_set("symbols")) {
-        spinner->setSymbols(options["symbols"]);
+        spinner.setSymbols(options["symbols"]);
+    }
+    if (options.is_set("style")) {
+        /*spinner.setStyle(options["style"]);*/
     }
     if (options.is_set("list")) {
-        print_map(spinnerType);
+        /*spinner->showSymbols();*/
         return 0;
     }
     if (options.is_set("list_colors")) {
@@ -124,17 +118,14 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    spinner->start();
+
+    spinner.start();
+
     if (options.is_set("process")) {
         std::vector<string> commands = SystemTermux::splitCommands(options["process"]);
         SystemTermux::run_commands(commands, options.is_set("quiet"));
-    } // else {*/
-    /*    sleep(5);*/
-    /*}*/
+    } 
 
-    if (spinner) {
-        spinner->stop();
-        spinner.reset();
-    }
+    spinner.stop();
     return 0;
 }

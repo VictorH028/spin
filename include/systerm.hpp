@@ -20,6 +20,7 @@ using namespace std;
  *  @class
  */
 class SystemTermux {
+
     static int executeCommand(string& command, bool quiet)
     {
         if (quiet) {
@@ -27,21 +28,13 @@ class SystemTermux {
         }
         int result = system(command.c_str());
         if (result != 0) {
-            cerr << "Error executing  " << command << endl;
+            // cerr << "Error executing  " << command << endl;
             return 1;
         }
         return 0;
     }
 
 public:
-    SystemTermux()
-    {
-        struct sysinfo info;
-        if (sysinfo(&info)) {
-            cerr << "[ERROR] : ----";
-        }
-    }
-
     static std::vector<std::string> splitCommands(const std::string input)
     {
         std::vector<std::string> commands;
@@ -86,4 +79,3 @@ public:
 }; // Find  SystemTermux
 
 #endif // !SYSTERM
-#define SYSTERM
