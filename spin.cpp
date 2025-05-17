@@ -1,6 +1,7 @@
 #include "include/optparse.hpp"
 #include "include/spinners.hpp"
 #include "include/systerm.hpp"
+#include <csignal>
 #include <iomanip>
 
 
@@ -37,6 +38,7 @@ void print_colors()
     cout << "\x1b[0;0m\n\n";
 }
 
+
 int main(int argc, char* argv[])
 {
     optparse::OptionParser parser = optparse::OptionParser();
@@ -53,33 +55,33 @@ int main(int argc, char* argv[])
         .type("int")
         .help("Interval in milliseconds")
         .metavar("INT");
-    parser.add_option("-s", "--symbols")
-        .dest("symbols")
-        .help("Symbols the spinner")
+    parser.add_option("-s", "--style")
+        .dest("style")
+        .help("Style the spinner")
         .metavar("NAME");
-    parser.add_option("-p", "--process")
-        .dest("process")
+    parser.add_option("--command")
+        .dest("cmd")
         .help("Command to execute")
         .metavar("COMMAND");
     parser.add_option("-l", "--list_symbols")
         .dest("list")
         .help("List of symbols")
         .action("store_false");
-    parser.add_option("-s","--style")
-        .dest("style")
-        .help("Show style")
+    parser.add_option("--custom_frame")
+        .dest("custom")
+        .help("....")
         .action("store_false");
     parser.add_option("-c", "--color")
         .dest("color")
         .help("Change text color")
         .metavar("COLOR");
-    parser.add_option("--list_colors")
-        .dest("list_colors")
+    parser.add_option("--show_colors")
+        .dest("show_colors")
         .help("Show list colors")
         .action("store_true");
-    parser.add_option("--procs")
-        .dest("procs")
-        .help("Number of current processes")
+    parser.add_option("--show_style")
+        .dest("show_style")
+        .help("Show list the symbols")
         .action("store_true");
     parser.add_option("-q", "--quiet")
         .dest("quiet")
@@ -103,26 +105,25 @@ int main(int argc, char* argv[])
     if (options.is_set("text")) {
         spinner.setText(options["text"]);
     }
-    if (options.is_set("symbols")) {
-        spinner.setSymbols(options["symbols"]);
-    }
     if (options.is_set("style")) {
-        /*spinner.setStyle(options["style"]);*/
+        spinner.setSymbols(options["style"]);
     }
-    if (options.is_set("list")) {
-        /*spinner->showSymbols();*/
+    if (options.is_set("custom")) {
+        /*spinner.setCustomFrames(options["style"]);*/
+    }
+    if (options.is_set("show_style")) {
+        spinner.showSymbols();
         return 0;
     }
-    if (options.is_set("list_colors")) {
+    if (options.is_set("show_colors")) {
         print_colors();
         return 0;
     }
 
 
     spinner.start();
-
-    if (options.is_set("process")) {
-        std::vector<string> commands = SystemTermux::splitCommands(options["process"]);
+    if (options.is_set("cmd")) {
+        std::vector<string> commands = SystemTermux::splitCommands(options["cmd"]);
         SystemTermux::run_commands(commands, options.is_set("quiet"));
     } 
 

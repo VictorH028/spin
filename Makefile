@@ -2,7 +2,7 @@
 BIN_NAME = spin
 
 #  las flags del compilador
-CXXFLAGS = -Wall   -O3 -fPIC  
+CXXFLAGS = -Wall   -O3 -fPIC -std=c++20 
 
 # Directorio de archivos objeto
 OBJ_DIR = obj
@@ -11,13 +11,11 @@ OBJ_DIR = obj
 SO_DIR = lib
 
 # Archivos fuente
-CPP_SOURCES_BIN = spin.cpp  src/spinners.cpp  
+CPP_SOURCES_BIN = spin.cpp   
 CPP_SOURCES_PY = spin_py.cpp
 
-
-
 # Archivos objeto
-OBJECTS_BIN = $(OBJ_DIR)/spin.o   
+OBJECTS_BIN = $(OBJ_DIR)/spin.o  
 OBJECTS_PY = $(OBJ_DIR)/spin_py.o
 
 # Compilado de la biblioteca .so para Python
@@ -47,7 +45,7 @@ build-bin: $(PREFIX)/bin/$(BIN_NAME)
 $(PREFIX)/bin/$(BIN_NAME): $(OBJECTS_BIN)
 	@echo "Compiling the binary $(BIN_NAME)..."
 	@mkdir -p $(PREFIX)/bin
-	@clang++ $(CXXFLAGS) $^ -o $@ 	 
+	@clang++ $(CXXFLAGS) $^  ./src/spinners.cpp -o $@ 	 
 	@echo "Copying the man page..."
 	@mkdir -p $(PREFIX)/share/man/man1/
 	@cp $(MAN_PAGE) $(PREFIX)/share/man/man1/
@@ -68,7 +66,7 @@ $(SO_FILE): $(OBJECTS_PY)
 $(OBJ_DIR)/%.o: %.cpp
 	@echo "Compiling the object file $<..."
 	@mkdir -p $(OBJ_DIR)
-	@clang++ -std=c++20 $(CXXFLAGS)  -c $< -o $@ $(PYTHON_INCLUDES)    
+	@clang++ -std=c++20 $(CXXFLAGS) -Iinclude  -c $< -o $@ # $(PYTHON_INCLUDES)    
   
 
 # Página de manual predefinida
@@ -101,5 +99,5 @@ install: all
 	@echo "Instalación completada de $(BIN_NAME) y su módulo Python."
 
 # Targets auxiliares
-.PHONY: all build-bin build-python clean clean-all install uninstall
+.PHONY: all build-bin build-python clean clean-all install 
 

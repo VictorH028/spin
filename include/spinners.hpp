@@ -34,8 +34,6 @@ private:
     std::thread t;                       /**< Hilo de animación */
     std::chrono::time_point<std::chrono::steady_clock> start_time; /**< Tiempo de inicio */
 
-    void setupSignalHandlers();
-    std::string getSpinner(const std::string& key);
     void hideCursor(bool hide = true);
 
 public:
@@ -45,8 +43,6 @@ public:
     // Control básico
     void start();
     void stop();
-    void pause();
-    void resume();
 
     // Configuración
     Spinner& setInterval(int); // ms 
@@ -56,18 +52,17 @@ public:
     Spinner& setBackgroundColor(const std::string& ); // color 
     Spinner& setStyle(const std::string& ); // style 
     Spinner& setCustomFrames(const std::vector<std::string>& ); // frames 
-    Spinner& setPosition(int x, int y);
+    Spinner& setPosition(int , int);
+    /*Spinner& suffixText();*/
 
     // Consulta
-    int getInterval() const;
     std::string getColor() const;
     bool isRunning() const;
     std::chrono::milliseconds getElapsedTime() const;
-    void showSymbols() const;
+    void showSymbols();
     static std::vector<std::string> getAvailableSpinners();
 
     // Utilidades
-    static std::string reset();
     static void handleSignal(int signal);
 };
 
