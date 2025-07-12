@@ -37,19 +37,24 @@ Command line:
 Usage: spin [options]
 
 Options:
-  -v, --version         show version  
   -h, --help            show this help message and exit
+  --version             show program's version number and exit
   -t TEXT, --text=TEXT  Text to show
   -i INT, --interval=INT
                         Interval in milliseconds
-  -s STRING, --symbols=STRING
-                        Symbols the spinner
-  -p COMMAND, --process=COMMAND
-                        Command to execute
-  -l, --list_symbols    List of symbols 
+  -s NAME, --style=NAME
+                        Style the spinner
+  --cmd=COMMAND         Command to execute
   -c COLOR, --color=COLOR
                         Change text color
-  --list_colors         Show list colors 
+  -q, --quiet           Run quietly, suppressing output
+
+  Information:
+    To show information
+
+    --show_colors       Show list colors
+    --show_style        Show list the symbols
+    -l, --list_symbols  List of list_symbols
 ```
 
 **It also has an integrated manual.**
@@ -64,16 +69,16 @@ Options:
 **Show a spinner with custom text:**
 
 ```bash
-spin -t "Loading..." -p "sleep 3"
+spin -t "Loading..." --cmd "sleep 3"
 ```
 
 ```bash 
 echo "Hola mundo" | spin -t 
 ```
-The option `-p` has parallel execution
+The option `--cmd` has parallel execution
 
 ```bash
-spin -c 230 -p "sleep 10, sleep 15, sleep 20"
+spin -c 230 --cmd "sleep 10, sleep 15, sleep 20"
 ```
 
 ```shell
@@ -88,7 +93,7 @@ spin -c 230 -p "sleep 10, sleep 15, sleep 20"
 ### Usage **for**
 ```sh
 _pkgs=("pkg1" "pkg2" "pkg3")
-spin -p '$(for package in "${_pkgs[@]}"; do
+spin -cmd '$(for package in "${_pkgs[@]}"; do
     echo "pkg install -y $package;"
 done)'
 ```
@@ -118,7 +123,7 @@ import time
 s = spinners.Spinner()
 
 # Set.textnand)symbols 
-s.set_color("blue")
+s.set_color(105)
 s.set_text("Cargando...")
 s.set_symbols("dots")
 
@@ -134,7 +139,7 @@ s.stop()
 
 int main (int argc, char *argv[]) {
     spinners::Spinner spinner;
-    spinner.setColor("red");
+    spinner.setColor(105);
     spinner.setText("Loading..");
     spinner.setSymbols("dots");
 

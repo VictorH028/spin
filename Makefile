@@ -2,7 +2,7 @@
 BIN_NAME = spin
 
 #  las flags del compilador
-CXXFLAGS = -Wall   -O3 -fPIC -std=c++20 
+CXXFLAGS += $(PYTHON_LDFLAGS) -Wall   -O3 -fPIC -std=c++20 
 
 # Directorio de archivos objeto
 OBJ_DIR = obj
@@ -25,7 +25,7 @@ SO_FILE = $(SO_DIR)/$(SO_NAME)
 # Directorio de instalación del módulo Python
 PYTHON_SITE_PACKAGES = $(shell python3 -m site --user-site)
 PYTHON_INCLUDES = $(shell pybind11-config --include)
-PYTHON_LDFLAGS := $(shell python3-config --ldflags --embed)
+PYTHON_LDFLAGS := $(shell python3 -m pybind11 --includes) -shared 
 
 #  la página de manual
 MAN_DIR = man
@@ -57,7 +57,7 @@ build-python: $(SO_FILE)
 
 $(SO_FILE): $(OBJECTS_PY)	
 	@echo "Compilando la biblioteca Python..."
-	@clang++ -shared $(CXXFLAGS) $^ -o $@ $(PYTHON_LDFLAGS)
+	@clang++ -shared $(CXXFLAGS) $^ -o $@ $(PYTHON_LDFLAGS) 
 	@echo "Instalando el módulo Python en $(PYTHON_SITE_PACKAGES)..."
 	@mkdir -p $(PYTHON_SITE_PACKAGES)
 	@cp $(SO_FILE) $(PYTHON_SITE_PACKAGES)

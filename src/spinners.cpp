@@ -8,53 +8,6 @@
 #include <ostream>
 #include <thread>
 
-/**
- * @brief array que contiene los diferentes tipos de spinners disponibles.
- */
-const std::array<std::pair<std::string, std::string>, 42> spinnerType = { {
-    { "dots", "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏" },
-    { "dots2", "⣾⣽⣻⢿⡿⣟⣯⣷" },
-    { "dots3", "⠋⠙⠚⠞⠖⠦⠴⠲⠳⠓" },
-    { "dots4", "⠄⠆⠇⠋⠙⠸⠰⠠⠰⠸⠙⠋⠇⠆" },
-    { "dots5", "⠋⠙⠚⠒⠂⠂⠒⠲⠴⠦⠖⠒⠐⠐⠒⠓⠋" },
-    { "dots6", "⠁⠉⠙⠚⠒⠂⠂⠒⠲⠴⠤⠄⠄⠤⠴⠲⠒⠂⠂⠒⠚⠙⠉⠁" },
-    { "dots7", "⠈⠉⠋⠓⠒⠐⠐⠒⠖⠦⠤⠠⠠⠤⠦⠖⠒⠐⠐⠒⠓⠋⠉⠈" },
-    { "dots8", "⠁⠁⠉⠙⠚⠒⠂⠂⠒⠲⠴⠤⠄⠄⠤⠠⠠⠤⠦⠖⠒⠐⠐⠒⠓⠋⠉⠈⠈" },
-    { "dots9", "⢹⢺⢼⣸⣇⡧⡗⡏" },
-    { "dots10", "⢄⢂⢁⡁⡈⡐⡠" },
-    { "dots11", "⠁⠂⠄⡀⢀⠠⠐⠈" },
-    { "pipe", "┤┘┴└├┌┬┐" },
-    { "star", "✶✸✹✺✹✷" },
-    { "flip", "___-`'´-___" },
-    { "hamburger", "☱☲☴" },
-    { "growVertical", "▁▃▄▅▆▇▆▅▄▃" },
-    { "growHorizontal", "▏▎▍▌▋▊▉▊▋▌▍▎" },
-    { "balloon", " . o O @ * " },
-    { "balloon2", ".oO°Oo." },
-    { "noise", "▓▒░" },
-    { "bounce", "⠁⠂⠄⠂" },
-    { "boxBounce", "▖▘▝▗" },
-    { "boxBounce2", "▌▀▐▄" },
-    { "triangle", "◢◣◤◥" },
-    { "arc", "◜◠◝◞◡◟" },
-    { "circle", "◡⊙◠" },
-    { "squareCorners", "◰◳◲◱" },
-    { "circleQuarters", "◴◷◶◵" },
-    { "circleHalves", "◐◓◑◒" },
-    { "squish", "╫╪" },
-    { "toggle", "⊶⊷" },
-    { "toggle5", "▮▯" },
-    { "toggle6", "ဝ၀" },
-    { "toggle7", "⦾⦿" },
-    { "toggle8", "◍◌" },
-    { "toggle9", "◉◎" },
-    { "toggle10", "㊂㊀㊁" },
-    { "toggle11", "⧇⧆" },
-    { "toggle12", "☗☖" },
-    { "arrow", "←↖↑↗→↘↓↙" },
-    { "arrow2", "➞➟➠➡➠➟" },
-    { "triangle", "⬖⬘⬗⬙" },
-} };
 
 Spinner::Spinner()
 {
@@ -147,13 +100,6 @@ Spinner& Spinner::setColor(const std::string& _color) {
     color = _color;
     return *this;
 }
-void Spinner::showSymbols()
-{
-    for (const auto& [key, value] : spinnerType) {
-        std::cout << key << " <---> " << value << std::endl;
-    }
-}
-
 /**/
 /*void Spinner::handleSignal(int signal) {*/
 /*    if (signal == SIGINT || signal == SIGTERM) {*/

@@ -32,7 +32,7 @@ Interval in milliseconds
 .B -s STRING, --symbols=STRING
 Symbols the spinner
 .TP
-.B -p COMMAND, --process=COMMAND
+.B --cmd=COMMAND
 Command to execute
 .TP
 .B -l, --list_symbols
@@ -45,7 +45,7 @@ Change text color
 Show list colors 
 
 .SH EXAMPLES 
-spin -t "Loading.." -c 105 -p "sleep 2" 
+spin -t "Loading.." -c 105 --cmd "sleep 2" 
 
 .SH SEE ALSO
 https://victorh028.github.io/spin/ 
