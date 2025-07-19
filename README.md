@@ -123,7 +123,7 @@ import time
 s = spinners.Spinner()
 
 # Set.textnand)symbols 
-s.set_color(105)
+s.set_color("105")
 s.set_text("Cargando...")
 s.set_symbols("dots")
 
