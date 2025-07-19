@@ -54,7 +54,6 @@ Options:
 
     --show_colors       Show list colors
     --show_style        Show list the symbols
-    -l, --list_symbols  List of list_symbols
 ```
 
 **It also has an integrated manual.**
