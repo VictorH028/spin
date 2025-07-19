@@ -4,7 +4,7 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(spinner, m)
+PYBIND11_MODULE(spinners, m)
 {
     m.doc() = "Spinners module to create terminal spinners with color support";
 

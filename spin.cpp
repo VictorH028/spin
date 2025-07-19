@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 {
     optparse::OptionParser parser = optparse::OptionParser();
     parser.version("Beta:👣v4.5");
-          
+
     parser.add_option("-t", "--text")
         .dest("text")
         .help("Text to show ")
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
         .dest("cmd")
         .help("Command to execute")
         .metavar("COMMAND");
- 
+
     /*parser.add_option("--custom_frame")*/
     /*    .dest("custom")*/
     /*    .type("std::vector<std::string>")*/
@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
     const std::vector<std::string> args = parser.args();
 
     Spinner spinner;
-  
+
     if (options.is_set("color")) {
         spinner.setColor(FOREGROUND_COLOR + options["color"] + "m");
     }
@@ -111,9 +111,9 @@ int main(int argc, char* argv[])
     /*    spinner.setCustomFrames(options["custom"]);*/
     /*}*/
     if (options.is_set("show_style")) {
-       for ( const auto& [key, value] : spinnerType) {
-          cout << key << " <----> " << value << "\n"; 
-       } 
+        for (const auto& [key, value] : spinnerType) {
+            cout << key << " <----> " << value << "\n";
+        }
         return 0;
     }
     if (options.is_set("show_colors")) {

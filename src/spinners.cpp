@@ -8,7 +8,6 @@
 #include <ostream>
 #include <thread>
 
-
 Spinner::Spinner()
 {
     symbols = std::make_unique<std::string>(spinnerType[0].second);
@@ -57,7 +56,7 @@ void Spinner::start()
             std::string frame = symbols->substr(i, 3); // UTF-8 characters
             i = (i + 3) % symbols->size(); // 3 bite por char
 
-            std::cout << std::format("{} {} {}\r", frame, color, text) << std::flush;
+            std::cout << std::format("{} {} {}\r", frame, FOREGROUND_COLOR + color + "m", text) << std::flush;
             std::this_thread::sleep_for(std::chrono::milliseconds(interval));
         }
 
@@ -71,15 +70,17 @@ void Spinner::stop()
     if (t.joinable()) {
         t.join();
     }
-   hideCursor();
+    hideCursor();
 }
 
-std::chrono::milliseconds Spinner::getElapsedTime() const {
+std::chrono::milliseconds Spinner::getElapsedTime() const
+{
     return std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::steady_clock::now() - start_time);
 }
 
-Spinner& Spinner::setCustomFrames(const std::vector<std::string>& frames) {
+Spinner& Spinner::setCustomFrames(const std::vector<std::string>& frames)
+{
     symbols = std::make_unique<std::string>();
     for (const auto& frame : frames) {
         *symbols += frame;
@@ -87,7 +88,8 @@ Spinner& Spinner::setCustomFrames(const std::vector<std::string>& frames) {
     return *this;
 }
 
-std::vector<std::string> Spinner::getAvailableSpinners() {
+std::vector<std::string> Spinner::getAvailableSpinners()
+{
     std::vector<std::string> names;
     for (const auto& [name, _] : spinnerType) {
         names.push_back(name);
@@ -95,8 +97,8 @@ std::vector<std::string> Spinner::getAvailableSpinners() {
     return names;
 }
 
-
-Spinner& Spinner::setColor(const std::string& _color) {
+Spinner& Spinner::setColor(const std::string& _color)
+{
     color = _color;
     return *this;
 }
