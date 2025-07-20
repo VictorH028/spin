@@ -84,11 +84,11 @@ int main(int argc, char* argv[])
         .dest("show_style")
         .help("Show list the symbols")
         .action("store_true");
-    group.add_option("-l", "--list_symbols")
-        .dest("list")
-        .help("List of symbols")
-        .action("store_false");
-
+    // group.add_option("-l", "--list_symbols")
+    //     .dest("list")
+    //     .help("List of symbols")
+    //     .action("store_false");
+    //
     parser.add_option_group(group);
     const optparse::Values options = parser.parse_args(argc, argv);
     const std::vector<std::string> args = parser.args();
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
     Spinner spinner;
 
     if (options.is_set("color")) {
-        spinner.setColor(FOREGROUND_COLOR + options["color"] + "m");
+        spinner.setColor(options["color"]);
     }
     if (options.is_set("interval")) {
         spinner.setInterval(std::stoi(options["interval"]));
