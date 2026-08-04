@@ -56,7 +56,7 @@ void Spinner::start()
             std::string frame = symbols->substr(i, 3); // UTF-8 characters
             i = (i + 3) % symbols->size(); // 3 bite por char
 
-            std::cout << std::format("{} {} {}\r", frame, FOREGROUND_COLOR + color + "m", text) << std::flush;
+            std::cerr << std::format("{} {} {}\r", frame, FOREGROUND_COLOR + color + "m", text) << std::flush;
             std::this_thread::sleep_for(std::chrono::milliseconds(interval));
         }
 

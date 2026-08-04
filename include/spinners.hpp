@@ -78,7 +78,7 @@ private:
     std::string text; /**< Texto acompañante */
     std::unique_ptr<std::string> symbols; /**< Símbolos del spinner */
     std::atomic<bool> stop_spinner { false }; /**< Control de ejecución */
-    std::string color; /**< Color del spinner */
+    std::string color = "15"; /**< Color del spinner */
     std::thread t; /**< Hilo de animación */
     std::chrono::time_point<std::chrono::steady_clock> start_time; /**< Tiempo de inicio */
 

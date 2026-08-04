@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
         spinner.setText(options["text"]);
     }
     if (options.is_set("style")) {
-        spinner.setSymbols(options["style"]);
+        spinner.setSymbols(std::string(options["style"]));
     }
     /*if (options.is_set("custom")) {*/
     /*    spinner.setCustomFrames(options["custom"]);*/
