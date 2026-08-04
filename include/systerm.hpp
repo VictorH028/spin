@@ -6,13 +6,22 @@
 #ifndef SYSTERM
 #define SYSTERM
 
-#include <iostream>
 #include <string>
 #include <sys/sysinfo.h>
 #include <thread>
 #include <vector>
 
 using namespace std;
+
+struct CommandResult {
+    int total = 0;
+    int succeeded = 0;
+    int failed = 0;
+
+    bool success() const {
+        return failed == 0;
+    }
+};
 
 /**
  *  @brief Algunas funcionalidades para termux
@@ -52,30 +61,52 @@ public:
         return commands;
     }
 
-    static void run_commands(std::vector<std::string>& commands, bool quiet = false)
-    {
+ static CommandResult run_commands(std::vector<std::string>& commands,
+                                  bool quiet = false)
+{
+    std::mutex aptMutex;
+    std::vector<std::thread> threads;
 
-        std::mutex aptMutex; // Apt da error por eso lo sincroniszo
-        std::vector<std::thread> threads;
+    std::atomic<int> succeeded{0};
+    std::atomic<int> failed{0};
 
-        for (auto& command : commands) {
-            if (command.find("apt") != string::npos && command.find("pkg") != string::npos) {
-                // Ejecuta `apt` y `pkg` en serie usando el mutex
-                std::lock_guard<std::mutex> lock(aptMutex);
-                executeCommand(command, quiet);
-            } else {
-                // Ejecuta otros comandos en hilos separados (paralelo)
-                threads.emplace_back(executeCommand, std::ref(command), quiet);
-            }
-        }
+    CommandResult result;
+    result.total = commands.size();
 
-        // Espera a que todos los hilos terminen
-        for (auto& t : threads) {
-            if (t.joinable()) {
-                t.join();
-            }
+    for (auto& command : commands) {
+
+        if (command.find("apt") != std::string::npos ||
+            command.find("pkg") != std::string::npos) {
+
+            std::lock_guard<std::mutex> lock(aptMutex);
+
+            if (executeCommand(command, quiet) == 0)
+                ++succeeded;
+            else
+                ++failed;
+
+        } else {
+
+            threads.emplace_back([&command, quiet, &succeeded, &failed]() {
+                if (executeCommand(command, quiet) == 0)
+                    ++succeeded;
+                else
+                    ++failed;
+            });
+
         }
     }
+
+    for (auto& t : threads) {
+        if (t.joinable())
+            t.join();
+    }
+
+    result.succeeded = succeeded.load();
+    result.failed = failed.load();
+
+    return result;
+}  
 }; // Find  SystemTermux
 
 #endif // !SYSTERM

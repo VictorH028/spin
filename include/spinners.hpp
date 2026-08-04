@@ -6,6 +6,8 @@
 #ifndef _SPINNERS_HPP_
 #define _SPINNERS_HPP_
 
+
+
 #include <atomic>
 #include <chrono>
 #include <csignal>
@@ -19,6 +21,28 @@
 
 #define FOREGROUND_COLOR "\x1b[38;5;" // ID m
 #define BACKGROUND_COLOR "\x1b[48;5;" // ID m
+
+struct StatusMessage {
+    std::string icon;
+    std::string text;
+};
+
+constexpr std::array<StatusMessage, 5> defaultStatus = {{
+    {"✔", "Success"},
+    {"✖", "Error"},
+    {"⚠", "Warning"},
+    {"ℹ", "Information"},
+    {"➜", "Next"}
+}};
+// 
+//
+typedef enum {
+    SPIN_SUCCESS,
+    SPIN_ERROR,
+    SPIN_WARNING,
+    SPIN_INFO,
+    SPIN_NEXT
+} SpinResult;
 
 /**
  * @brief array que contiene los diferentes tipos de spinners disponibles.
@@ -91,6 +115,7 @@ public:
     // Control básico
     void start();
     void stop();
+    
 
     // Configuración
     Spinner& setInterval(int); // ms
@@ -102,14 +127,13 @@ public:
     Spinner& setCustomFrames(const std::vector<std::string>&); // frames
     Spinner& setPosition(int, int);
     /*Spinner& suffixText();*/
-
+    void showStatus(SpinResult type, const std::string& text = "");
     // Consulta
     std::string getColor() const;
     bool isRunning() const;
     std::chrono::milliseconds getElapsedTime() const;
     void showSymbols();
     static std::vector<std::string> getAvailableSpinners();
-
     // Utilidades
     static void handleSignal(int signal);
 };

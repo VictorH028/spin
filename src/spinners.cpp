@@ -102,6 +102,19 @@ Spinner& Spinner::setColor(const std::string& _color)
     color = _color;
     return *this;
 }
+
+void Spinner::showStatus(SpinResult type, const std::string& text)
+{
+    const auto& status = defaultStatus[type];
+
+    std::cout
+        << FOREGROUND_COLOR << color << "m"
+        << status.icon << " "
+        << (text.empty() ? status.text : text)
+        << "\033[0m"
+        << std::endl;
+}
+
 /**/
 /*void Spinner::handleSignal(int signal) {*/
 /*    if (signal == SIGINT || signal == SIGTERM) {*/

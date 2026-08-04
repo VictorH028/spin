@@ -4,6 +4,7 @@
 #include <csignal>
 #include <iomanip>
 
+
 void print_colors()
 {
     /*for (int i = 0; i < 16; i++) {*/
@@ -59,12 +60,9 @@ int main(int argc, char* argv[])
         .dest("cmd")
         .help("Command to execute")
         .metavar("COMMAND");
+/// Sona de prueba 
 
-    /*parser.add_option("--custom_frame")*/
-    /*    .dest("custom")*/
-    /*    .type("std::vector<std::string>")*/
-    /*    .help("....")*/
-    /*    .action("store_false");*/
+//........
     parser.add_option("-c", "--color")
         .dest("color")
         .help("Change text color")
@@ -73,6 +71,24 @@ int main(int argc, char* argv[])
         .dest("quiet")
         .help("Run quietly, suppressing output")
         .action("store_true");
+
+
+    optparse::OptionGroup group1 = optparse::OptionGroup("Text", "Show message");
+    group1.add_option("--result")
+        .dest("result")
+        .help("Display message after execution finishes")
+        .action("store_true");
+
+   group1.add_option("--error")
+    .dest("error")
+    .help("To change the message")
+    .metavar("TEXT");
+
+   group1.add_option("--success")
+    .dest("success")
+    .help("To change the message")
+    .metavar("TEXT");
+
 
     optparse::OptionGroup group = optparse::OptionGroup("Information",
         "To show information");
@@ -90,6 +106,7 @@ int main(int argc, char* argv[])
     //     .action("store_false");
     //
     parser.add_option_group(group);
+    parser.add_option_group(group1);
     const optparse::Values options = parser.parse_args(argc, argv);
     const std::vector<std::string> args = parser.args();
 
@@ -122,11 +139,33 @@ int main(int argc, char* argv[])
     }
 
     spinner.start();
-    if (options.is_set("cmd")) {
-        std::vector<string> commands = SystemTermux::splitCommands(options["cmd"]);
-        SystemTermux::run_commands(commands, options.is_set("quiet"));
-    }
+    int status = 0;
+CommandResult result;
 
-    spinner.stop();
-    return 0;
+if (options.is_set("cmd")) {
+    auto commands = SystemTermux::splitCommands(options["cmd"]);
+    result = SystemTermux::run_commands(commands, options.is_set("quiet"));
+}
+
+spinner.stop();
+
+if (options.is_set("result")) {
+    if (result.success()) {
+        spinner.showStatus(
+            SPIN_SUCCESS,
+            options.is_set("success")
+                ? options["success"]
+                : std::format("{} command(s) completed successfully", result.succeeded));
+    } else {
+        spinner.showStatus(
+            SPIN_ERROR,
+            options.is_set("error")
+                ? options["error"]
+                : std::format("{} succeeded, {} failed",
+                              result.succeeded,
+                              result.failed));
+    }
+}
+
+return result.success() ? 0 : 1;
 }
