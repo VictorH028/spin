@@ -6,8 +6,6 @@
 #ifndef _SPINNERS_HPP_
 #define _SPINNERS_HPP_
 
-
-
 #include <atomic>
 #include <chrono>
 #include <csignal>
@@ -27,14 +25,12 @@ struct StatusMessage {
     std::string text;
 };
 
-constexpr std::array<StatusMessage, 5> defaultStatus = {{
-    {"✔", "Success"},
-    {"✖", "Error"},
-    {"⚠", "Warning"},
-    {"ℹ", "Information"},
-    {"➜", "Next"}
-}};
-// 
+constexpr std::array<StatusMessage, 5> defaultStatus = { { { "✔", "Success" },
+    { "✖", "Error" },
+    { "⚠", "Warning" },
+    { "ℹ", "Information" },
+    { "➜", "Next" } } };
+//
 //
 typedef enum {
     SPIN_SUCCESS,
@@ -115,7 +111,6 @@ public:
     // Control básico
     void start();
     void stop();
-    
 
     // Configuración
     Spinner& setInterval(int); // ms

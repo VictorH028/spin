@@ -18,7 +18,8 @@ struct CommandResult {
     int succeeded = 0;
     int failed = 0;
 
-    bool success() const {
+    bool success() const
+    {
         return failed == 0;
     }
 };
@@ -61,52 +62,50 @@ public:
         return commands;
     }
 
- static CommandResult run_commands(std::vector<std::string>& commands,
-                                  bool quiet = false)
-{
-    std::mutex aptMutex;
-    std::vector<std::thread> threads;
+    static CommandResult run_commands(std::vector<std::string>& commands,
+        bool quiet = false)
+    {
+        std::mutex aptMutex;
+        std::vector<std::thread> threads;
 
-    std::atomic<int> succeeded{0};
-    std::atomic<int> failed{0};
+        std::atomic<int> succeeded { 0 };
+        std::atomic<int> failed { 0 };
 
-    CommandResult result;
-    result.total = commands.size();
+        CommandResult result;
+        result.total = commands.size();
 
-    for (auto& command : commands) {
+        for (auto& command : commands) {
 
-        if (command.find("apt") != std::string::npos ||
-            command.find("pkg") != std::string::npos) {
+            if (command.find("apt") != std::string::npos || command.find("pkg") != std::string::npos) {
 
-            std::lock_guard<std::mutex> lock(aptMutex);
+                std::lock_guard<std::mutex> lock(aptMutex);
 
-            if (executeCommand(command, quiet) == 0)
-                ++succeeded;
-            else
-                ++failed;
-
-        } else {
-
-            threads.emplace_back([&command, quiet, &succeeded, &failed]() {
                 if (executeCommand(command, quiet) == 0)
                     ++succeeded;
                 else
                     ++failed;
-            });
 
+            } else {
+
+                threads.emplace_back([&command, quiet, &succeeded, &failed]() {
+                    if (executeCommand(command, quiet) == 0)
+                        ++succeeded;
+                    else
+                        ++failed;
+                });
+            }
         }
+
+        for (auto& t : threads) {
+            if (t.joinable())
+                t.join();
+        }
+
+        result.succeeded = succeeded.load();
+        result.failed = failed.load();
+
+        return result;
     }
-
-    for (auto& t : threads) {
-        if (t.joinable())
-            t.join();
-    }
-
-    result.succeeded = succeeded.load();
-    result.failed = failed.load();
-
-    return result;
-}  
 }; // Find  SystemTermux
 
 #endif // !SYSTERM

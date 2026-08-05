@@ -4,7 +4,6 @@
 #include <csignal>
 #include <iomanip>
 
-
 void print_colors()
 {
     /*for (int i = 0; i < 16; i++) {*/
@@ -60,9 +59,9 @@ int main(int argc, char* argv[])
         .dest("cmd")
         .help("Command to execute")
         .metavar("COMMAND");
-/// Sona de prueba 
+    /// Sona de prueba
 
-//........
+    //........
     parser.add_option("-c", "--color")
         .dest("color")
         .help("Change text color")
@@ -72,23 +71,21 @@ int main(int argc, char* argv[])
         .help("Run quietly, suppressing output")
         .action("store_true");
 
-
     optparse::OptionGroup group1 = optparse::OptionGroup("Text", "Show message");
     group1.add_option("--result")
         .dest("result")
         .help("Display message after execution finishes")
         .action("store_true");
 
-   group1.add_option("--error")
-    .dest("error")
-    .help("To change the message")
-    .metavar("TEXT");
+    group1.add_option("--error")
+        .dest("error")
+        .help("To change the message")
+        .metavar("TEXT");
 
-   group1.add_option("--success")
-    .dest("success")
-    .help("To change the message")
-    .metavar("TEXT");
-
+    group1.add_option("--success")
+        .dest("success")
+        .help("To change the message")
+        .metavar("TEXT");
 
     optparse::OptionGroup group = optparse::OptionGroup("Information",
         "To show information");
@@ -139,33 +136,32 @@ int main(int argc, char* argv[])
     }
 
     spinner.start();
-    int status = 0;
-CommandResult result;
+    CommandResult result;
 
-if (options.is_set("cmd")) {
-    auto commands = SystemTermux::splitCommands(options["cmd"]);
-    result = SystemTermux::run_commands(commands, options.is_set("quiet"));
-}
-
-spinner.stop();
-
-if (options.is_set("result")) {
-    if (result.success()) {
-        spinner.showStatus(
-            SPIN_SUCCESS,
-            options.is_set("success")
-                ? options["success"]
-                : std::format("{} command(s) completed successfully", result.succeeded));
-    } else {
-        spinner.showStatus(
-            SPIN_ERROR,
-            options.is_set("error")
-                ? options["error"]
-                : std::format("{} succeeded, {} failed",
-                              result.succeeded,
-                              result.failed));
+    if (options.is_set("cmd")) {
+        auto commands = SystemTermux::splitCommands(options["cmd"]);
+        result = SystemTermux::run_commands(commands, options.is_set("quiet"));
     }
-}
 
-return result.success() ? 0 : 1;
+    spinner.stop();
+
+    if (options.is_set("result")) {
+        if (result.success()) {
+            spinner.showStatus(
+                SPIN_SUCCESS,
+                options.is_set("success")
+                    ? options["success"]
+                    : std::format("{} command(s) completed successfully", result.succeeded));
+        } else {
+            spinner.showStatus(
+                SPIN_ERROR,
+                options.is_set("error")
+                    ? options["error"]
+                    : std::format("{} succeeded, {} failed",
+                          result.succeeded,
+                          result.failed));
+        }
+    }
+
+    return result.success() ? 0 : 1;
 }
