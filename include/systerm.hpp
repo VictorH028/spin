@@ -30,7 +30,7 @@ struct CommandResult {
  *  @class
  */
 class SystemTermux {
-
+   // static int executeCommand(string& command, bool quiut, bool log)     
     static int executeCommand(string& command, bool quiet)
     {
         if (quiet) {

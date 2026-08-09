@@ -2,6 +2,7 @@
 #include "include/spinners.hpp"
 #include "include/systerm.hpp"
 #include <csignal>
+#include <format>
 #include <iomanip>
 
 void print_colors()
@@ -97,10 +98,10 @@ int main(int argc, char* argv[])
         .dest("show_style")
         .help("Show list the symbols")
         .action("store_true");
-    // group.add_option("-l", "--list_symbols")
-    //     .dest("list")
-    //     .help("List of symbols")
-    //     .action("store_false");
+    // group.add_option("--log")
+    //     .dest("log")
+    //     .help("Save info ")
+    //     .action("store_true");
     //
     parser.add_option_group(group);
     parser.add_option_group(group1);
@@ -121,7 +122,7 @@ int main(int argc, char* argv[])
     if (options.is_set("style")) {
         spinner.setSymbols(std::string(options["style"]));
     }
-    /*if (options.is_set("custom")) {*/
+    /*if (options.is_set("log")) {*/
     /*    spinner.setCustomFrames(options["custom"]);*/
     /*}*/
     if (options.is_set("show_style")) {
@@ -150,13 +151,13 @@ int main(int argc, char* argv[])
             spinner.showStatus(
                 SPIN_SUCCESS,
                 options.is_set("success")
-                    ? options["success"]
-                    : std::format("{} command(s) completed successfully", result.succeeded));
+                    ? std::format("{}                       ",  options["success"])
+                    : std::format("{} {}", result.succeeded, options["text"]));
         } else {
             spinner.showStatus(
                 SPIN_ERROR,
                 options.is_set("error")
-                    ? options["error"]
+                    ? std::format("{} {}", result.failed,  options["error"])
                     : std::format("{} succeeded, {} failed",
                           result.succeeded,
                           result.failed));
