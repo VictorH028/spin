@@ -54,6 +54,13 @@ Options:
 
     --show_colors       Show list colors
     --show_style        Show list the symbols
+  
+  Text:
+    Show message
+
+    --result            Display message after execution finishes
+    --error=TEXT        To change the message
+    --success=TEXT      To change the message
 ```
 
 **It also has an integrated manual.**
