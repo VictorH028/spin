@@ -103,7 +103,8 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> start_time; /**< Tiempo de inicio */
 
     void hideCursor(bool hide = true);
-
+    void setupSignalHandlers();
+    static void handleSignal(int signal);
 public:
     Spinner();
     ~Spinner();
@@ -130,7 +131,6 @@ public:
     void showSymbols();
     static std::vector<std::string> getAvailableSpinners();
     // Utilidades
-    static void handleSignal(int signal);
 };
 
 #endif // _SPINNERS_HPP_

@@ -4,14 +4,15 @@
 #include <csignal>
 #include <format>
 #include <iomanip>
+#include <iostream>
 
 void print_colors()
 {
     /*for (int i = 0; i < 16; i++) {*/
-    /*    cout << "\x1b[38;5;" << i << 'm' << std::setw(4) << i;*/
-    /*    if (i % 8 == 7) cout << "\x1b[0;0m\n";*/
+    /*    std::cout << "\x1b[38;5;" << i << 'm' << std::setw(4) << i;*/
+    /*    if (i % 8 == 7) std::cout << "\x1b[0;0m\n";*/
     /*}*/
-    /*cout << '\n';*/
+    /*std::cout << '\n';*/
     /**/
     for (int row = 0; row < 2; row++) {
         for (int g = 0; g < 6; g++) {
@@ -19,23 +20,23 @@ void print_colors()
                 for (int b = 0; b < 6; b++) {
                     int r = row * 3 + col;
                     int i = 16 + 36 * r + 6 * g + b;
-                    cout << "\x1b[38;5;" << i << 'm' << std::setw(4) << i;
+                    std::cout << "\x1b[38;5;" << i << 'm' << std::setw(4) << i;
                 }
-                cout << "\x1b[0;0m";
+                std::cout << "\x1b[0;0m";
                 if (col < 2)
-                    cout << "   ";
+                    std::cout << "   ";
             }
-            cout << '\n';
+            std::cout << '\n';
         }
-        cout << '\n';
+        std::cout << '\n';
     }
 
     for (int i = 232; i < 256; i++) {
-        cout << "\x1b[38;5;" << i << 'm'; // << std::setw(4) << i;
+        std::cout << "\x1b[38;5;" << i << 'm'; // << std::setw(4) << i;
         if (i == 243)
-            cout << "\x1b[0;0m\n";
+            std::cout << "\x1b[0;0m\n";
     }
-    cout << "\x1b[0;0m\n\n";
+    std::cout << "\x1b[0;0m\n\n";
 }
 
 int main(int argc, char* argv[])
@@ -52,7 +53,7 @@ int main(int argc, char* argv[])
         .type("int")
         .help("Interval in milliseconds")
         .metavar("INT");
-    parser.add_option("-s", "--style")
+    parser.add_option("--style")
         .dest("style")
         .help("Style the spinner")
         .metavar("NAME");
@@ -78,12 +79,12 @@ int main(int argc, char* argv[])
         .help("Display message after execution finishes")
         .action("store_true");
 
-    group1.add_option("--error")
+    group1.add_option("-e","--error")
         .dest("error")
         .help("To change the message")
         .metavar("TEXT");
 
-    group1.add_option("--success")
+    group1.add_option("-s","--success")
         .dest("success")
         .help("To change the message")
         .metavar("TEXT");
@@ -127,7 +128,7 @@ int main(int argc, char* argv[])
     /*}*/
     if (options.is_set("show_style")) {
         for (const auto& [key, value] : spinnerType) {
-            cout << key << " <----> " << value << "\n";
+            std::cout << key << " <----> " << value << "\n";
         }
         return 0;
     }
@@ -151,13 +152,13 @@ int main(int argc, char* argv[])
             spinner.showStatus(
                 SPIN_SUCCESS,
                 options.is_set("success")
-                    ? std::format("{}                       ",  options["success"])
+                    ? std::format("{}                       ", options["success"])
                     : std::format("{} {}", result.succeeded, options["text"]));
         } else {
             spinner.showStatus(
                 SPIN_ERROR,
                 options.is_set("error")
-                    ? std::format("{} {}", result.failed,  options["error"])
+                    ? std::format("{} {}", result.failed, options["error"])
                     : std::format("{} succeeded, {} failed",
                           result.succeeded,
                           result.failed));

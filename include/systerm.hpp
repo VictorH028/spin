@@ -1,17 +1,23 @@
 /**
  *  @file systerm.cpp
- *  @brief Ejecutar comamdos en termux.
+ *  @brief Ejecutar comandos en Termux con concurrencia segura.
  */
 
 #ifndef SYSTERM
 #define SYSTERM
 
+#include <atomic>
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
+#include <mutex>
+#include <sstream>
 #include <string>
-#include <sys/sysinfo.h>
+#include <sys/wait.h>
 #include <thread>
 #include <vector>
-
-using namespace std;
 
 struct CommandResult {
     int total = 0;
@@ -25,45 +31,109 @@ struct CommandResult {
 };
 
 /**
- *  @brief Algunas funcionalidades para termux
- *
- *  @class
+ *  @brief Utilidades para ejecución de comandos en Termux
  */
 class SystemTermux {
-   // static int executeCommand(string& command, bool quiut, bool log)     
-    static int executeCommand(string& command, bool quiet)
+private:
+    inline static std::mutex logMutex;
+
+    /**
+     * @brief Guarda  logs.
+     */
+    static std::string getLogFilePath()
     {
+        const char* homeDir = std::getenv("HOME");
+        if (homeDir) {
+            return std::string(homeDir) + "/.spin.log";
+        }
+        return "spin.log"; // Fallback local si no existe $HOME
+    }
+
+    /**
+     * @brief Guarda información de los comandos ejecutados.
+     */
+    static void saveLog(const std::string& command, int exitCode)
+    {
+        std::lock_guard<std::mutex> lock(logMutex);
+
+        std::ofstream logFile(getLogFilePath(), std::ios::app);
+        if (!logFile.is_open())
+            return;
+
+        auto now = std::chrono::system_clock::now();
+        auto time = std::chrono::system_clock::to_time_t(now);
+
+        std::string timeStr = std::ctime(&time);
+        if (!timeStr.empty() && timeStr.back() == '\n') {
+            timeStr.pop_back();
+        }
+
+        logFile << "========================================\n";
+        logFile << "Fecha: " << timeStr << "\n";
+        logFile << "Comando: " << command << "\n";
+        logFile << "Exit code: " << exitCode << "\n";
+        logFile << "Estado: " << (exitCode == 0 ? "SUCCESS" : "FAILED") << "\n";
+    }
+
+    /**
+     *  0 : Éxito
+     * >0 : Código de error devuelto por la shell
+     * -1 : Error al invocar popen
+     */
+    static int executeCommand(const std::string& command, bool quiet)
+    {
+        std::string finalCommand = command;
         if (quiet) {
-            command += " > /dev/null 2>&1";
+            finalCommand += " > /dev/null 2>&1";
         }
-        int result = system(command.c_str());
-        if (result != 0) {
-            // cerr << "Error executing  " << command << endl;
-            return 1;
+
+        FILE* pipe = popen(finalCommand.c_str(), "r");
+        if (!pipe) {
+            if (quiet) {
+                saveLog(finalCommand, -1);
+            }
+            return -1;
         }
-        return 0;
+
+        int rawStatus = pclose(pipe);
+        if (rawStatus == -1) {
+            if (quiet) {
+                saveLog(finalCommand, -1);
+            }
+            return -1;
+        }
+
+        int exitCode = -1;
+        if (WIFEXITED(rawStatus)) {
+            exitCode = WEXITSTATUS(rawStatus);
+        } else if (WIFSIGNALED(rawStatus)) {
+            exitCode = 128 + WTERMSIG(rawStatus);
+        }
+
+        if (quiet) {
+            saveLog(finalCommand, exitCode);
+        }
+
+        return exitCode;
     }
 
 public:
-    static std::vector<std::string> splitCommands(const std::string input)
+    static std::vector<std::string> splitCommands(const std::string& input)
     {
         std::vector<std::string> commands;
-        stringstream ss(input);
+        std::stringstream ss(input);
         std::string command;
-        while (getline(ss, command, ',')) {
-            // Elimina espacios en blanco alrededor del comando
+        while (std::getline(ss, command, ',')) {
             command.erase(0, command.find_first_not_of(' '));
             command.erase(command.find_last_not_of(' ') + 1);
             if (!command.empty()) {
                 commands.push_back(command);
             }
         }
-
         return commands;
     }
 
-    static CommandResult run_commands(std::vector<std::string>& commands,
-        bool quiet = false)
+    static CommandResult run_commands(const std::vector<std::string>& commands, bool quiet = false)
     {
         std::mutex aptMutex;
         std::vector<std::thread> threads;
@@ -72,33 +142,35 @@ public:
         std::atomic<int> failed { 0 };
 
         CommandResult result;
-        result.total = commands.size();
+        result.total = static_cast<int>(commands.size());
 
-        for (auto& command : commands) {
+        for (const auto& command : commands) {
+            // Detectar gestores de paquetes que bloquean la base de datos de dpkg
+            bool isAptOrPkg = (command.find("apt") != std::string::npos || command.find("pkg") != std::string::npos);
 
-            if (command.find("apt") != std::string::npos || command.find("pkg") != std::string::npos) {
+            // Capturar 'command' POR VALOR para evitar dangling reference
+            threads.emplace_back([command, quiet, isAptOrPkg, &aptMutex, &succeeded, &failed]() {
+                int res = -1;
 
-                std::lock_guard<std::mutex> lock(aptMutex);
+                if (isAptOrPkg) {
+                    std::lock_guard<std::mutex> lock(aptMutex);
+                    res = executeCommand(command, quiet);
+                } else {
+                    res = executeCommand(command, quiet);
+                }
 
-                if (executeCommand(command, quiet) == 0)
+                if (res == 0) {
                     ++succeeded;
-                else
+                } else {
                     ++failed;
-
-            } else {
-
-                threads.emplace_back([&command, quiet, &succeeded, &failed]() {
-                    if (executeCommand(command, quiet) == 0)
-                        ++succeeded;
-                    else
-                        ++failed;
-                });
-            }
+                }
+            });
         }
 
         for (auto& t : threads) {
-            if (t.joinable())
+            if (t.joinable()) {
                 t.join();
+            }
         }
 
         result.succeeded = succeeded.load();
@@ -106,6 +178,6 @@ public:
 
         return result;
     }
-}; // Find  SystemTermux
+};
 
 #endif // !SYSTERM

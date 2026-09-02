@@ -12,11 +12,13 @@ Spinner::Spinner()
 {
     symbols = std::make_unique<std::string>(spinnerType[0].second);
     start_time = std::chrono::steady_clock::now();
+    setupSignalHandlers();
 }
 
 Spinner::~Spinner()
 {
     stop();
+    hideCursor(false);
 }
 
 void Spinner::hideCursor(bool hide)
@@ -44,23 +46,31 @@ Spinner& Spinner::setSymbols(const std::string& key)
     return *this;
 }
 
+
 void Spinner::start()
 {
     stop_spinner = false;
     t = std::thread([this]() {
         size_t i = 0;
-        hideCursor();
+        hideCursor(true); // Ocultar cursor al iniciar
         start_time = std::chrono::steady_clock::now();
 
+        // Si usas customFrames o std::vector<std::string>, es más seguro iterar frames completos:
         while (!stop_spinner) {
-            std::string frame = symbols->substr(i, 3); // UTF-8 characters
-            i = (i + 3) % symbols->size(); // 3 bite por char
+            std::string frame = symbols->substr(i, 3); // Ojo si usas caracteres de 1 o 4 bytes
+            i = (i + 3) % symbols->size();
 
-            std::cerr << std::format("{} {} {}\r", frame, FOREGROUND_COLOR + color + "m", text) << std::flush;
+            // \033[2K limpia toda la línea actual antes de reescribir
+            std::cerr << "\033[2K\r" 
+                      << FOREGROUND_COLOR << color << "m" 
+                      << frame << " " << text << "\033[0m" 
+                      << std::flush;
+
             std::this_thread::sleep_for(std::chrono::milliseconds(interval));
         }
 
-        hideCursor(false);
+        std::cerr << "\033[2K\r" << std::flush;
+        hideCursor(false); // Mostrar cursor al detener el loop
     });
 }
 
@@ -70,8 +80,10 @@ void Spinner::stop()
     if (t.joinable()) {
         t.join();
     }
-    hideCursor();
+    
+    hideCursor(false); 
 }
+
 
 std::chrono::milliseconds Spinner::getElapsedTime() const
 {
@@ -115,18 +127,19 @@ void Spinner::showStatus(SpinResult type, const std::string& text)
         << std::endl;
 }
 
-/**/
-/*void Spinner::handleSignal(int signal) {*/
-/*    if (signal == SIGINT || signal == SIGTERM) {*/
-/*        std::cout << SHOW_CURSOR << "\nSignal received. Cleaning up...\n";*/
-/*        std::exit(signal);*/
-/*    }*/
-/*}*/
-/**/
 
-/*void Spinner::setupSignalHandlers()*/
-/*{*/
-/*    std::signal(SIGINT, handleSignal);*/
-/*    std::signal(SIGTERM, handleSignal);*/
-/*}*/
-/**/
+// Función estática/global para manejar la interrupción brusca
+void Spinner::handleSignal(int signal)
+{
+    // Restaurar el cursor inmediatamente antes de terminar el proceso
+    std::cout << "\033[?25h\033[0m\n" << std::flush;
+    std::exit(signal);
+}
+
+void Spinner::setupSignalHandlers()
+{
+    std::signal(SIGINT, Spinner::handleSignal);  // Interrupción de consola (Ctrl + C)
+    std::signal(SIGTERM, Spinner::handleSignal); // Solicitud de terminación
+}
+
+
