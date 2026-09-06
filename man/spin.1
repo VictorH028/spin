@@ -3,7 +3,7 @@
 .ad l
 .
 .SH NAME
-SPIN \- Spinner
+spin \- Command-line spinner tool for long-running processes
 .
 .SH SYNOPSIS
 .B spin
@@ -11,54 +11,74 @@ SPIN \- Spinner
 .RI [ ARG ]
 .
 .SH DESCRIPTION
-spin is a command line (CLI) tool written in C++ that displays an animated spinner while a background process is running. It is useful for visually indicating that a task is in progress, especially if the task takes a considerable amount of time.
+\fBspin\fP is a command-line tool written in C++ that displays an animated spinner while a background process is running. It is useful for visually indicating that a task is in progress, especially if the task takes a considerable amount of time.
 .
 .SH OPTIONS
 .
 .SS General options:
 .TP
-.B -v, --version
-Show version 
-.TP
 .B -h, --help
-Display help and exit
+Display this help message and exit
+.TP
+.B --version
+Show program's version number and exit
 .TP
 .B -t TEXT, --text=TEXT
-Text to show
+Text to show alongside the spinner
 .TP
 .B -i INT, --interval=INT
-Interval in milliseconds
+Interval in milliseconds between spinner updates
 .TP
-.B -s STRING, --symbols=STRING
-Symbols the spinner
+.B --style=NAME
+Style/name of the spinner to use
 .TP
 .B --cmd=COMMAND
-Command to execute
+Command to execute while displaying the spinner
 .TP
-.B -l, --list_symbols
-List available spinner symbols
+.B -c COLOR, --color=COLOR
+Change text color (use number)
 .TP
-.B -c, --color
-Change text color
+.B -q, --quiet
+Run quietly, suppressing output
+.
+.SS Information options:
 .TP
-.B --list_colors
-Show list colors 
-
-.SH Text
-.SS Show message
+.B --show_colors
+Show list of available colors and exit
 .TP
-.B --result            
+.B --show_style
+Show list of available spinner styles/symbols and exit
+.
+.SS Text/Message options:
+.TP
+.B --result
 Display message after execution finishes
 .TP
-.B --error=TEXT        
-To change the message
+.B -e TEXT, --error=TEXT
+Custom error message to display on failure
 .TP
-.B --success=TEXT     
-To change the message
-
-.SH EXAMPLES 
-spin -t "Loading.." -c 105 --cmd "sleep 2" 
-
+.B -s TEXT, --success=TEXT
+Custom success message to display on completion
+.
+.SH EXAMPLES
+.TP
+Basic usage with custom text:
+.B spin -t "Loading.." --cmd "sleep 2"
+.TP
+With color and interval:
+.B spin -t "Processing" -c 105 -i 100 --cmd "long_running_task"
+.TP
+With success/error messages:
+.B spin --cmd "build.sh" -s "Build successful!" -e "Build failed!"
+.TP
+List available styles:
+.B spin --show_style
+.TP
+Run quietly:
+.B spin -q --cmd "backup.sh"
+.
 .SH SEE ALSO
-https://victorh028.github.io/spin/ 
-
+.BR https://victorh028.github.io/spin/
+.
+.SH AUTHOR
+Written by @demonr_rip.

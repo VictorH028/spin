@@ -12,7 +12,7 @@ spin is a command line (CLI) tool written in C++ that displays an animated spinn
 git clone https://github.com/VictorH028/spin && cd  spin
 ```
 ```
-make build-bin
+make
 ```
 
 - *this apt*
@@ -68,7 +68,7 @@ Options:
 
 > [!NOTE]
 > **Predefined Symbol**
-> > circleHalves: ◐◓◑◒
+> > dots: ⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏ 
 
 ## Example 
 
@@ -76,12 +76,7 @@ Options:
 
 ```bash
 spin -t "Loading..." --cmd "sleep 3"
-```
-
-```bash 
-echo "Hola mundo" | spin -t 
-```
-The option `--cmd` has parallel execution
+```The option `--cmd` has parallel execution
 
 ```bash
 spin -c 230 --cmd "sleep 10, sleep 15, sleep 20"
@@ -108,16 +103,7 @@ done)'
 
 ### Use as **python** module:
 
-- Requirement 
 
-```sh 
-pip install pybind11
-```
-
-- Compilation
-
-```
-make build-python
 ```
 #### Example
 
@@ -138,6 +124,7 @@ s.start()
 time.sleep(5)
 s.stop()
 ```
+
 ### Use in **C++**   
 
 ```cpp
