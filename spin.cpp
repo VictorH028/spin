@@ -79,12 +79,12 @@ int main(int argc, char* argv[])
         .help("Display message after execution finishes")
         .action("store_true");
 
-    group1.add_option("-e","--error")
+    group1.add_option("-e", "--error")
         .dest("error")
         .help("To change the message")
         .metavar("TEXT");
 
-    group1.add_option("-s","--success")
+    group1.add_option("-s", "--success")
         .dest("success")
         .help("To change the message")
         .metavar("TEXT");

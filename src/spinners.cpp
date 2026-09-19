@@ -46,7 +46,6 @@ Spinner& Spinner::setSymbols(const std::string& key)
     return *this;
 }
 
-
 void Spinner::start()
 {
     stop_spinner = false;
@@ -61,9 +60,9 @@ void Spinner::start()
             i = (i + 3) % symbols->size();
 
             // \033[2K limpia toda la línea actual antes de reescribir
-            std::cerr << "\033[2K\r" 
-                      << FOREGROUND_COLOR << color << "m" 
-                      << frame << " " << text << "\033[0m" 
+            std::cerr << "\033[2K\r"
+                      << FOREGROUND_COLOR << color << "m"
+                      << frame << " " << text << "\033[0m"
                       << std::flush;
 
             std::this_thread::sleep_for(std::chrono::milliseconds(interval));
@@ -80,10 +79,9 @@ void Spinner::stop()
     if (t.joinable()) {
         t.join();
     }
-    
-    hideCursor(false); 
-}
 
+    hideCursor(false);
+}
 
 std::chrono::milliseconds Spinner::getElapsedTime() const
 {
@@ -127,19 +125,17 @@ void Spinner::showStatus(SpinResult type, const std::string& text)
         << std::endl;
 }
 
-
 // Función estática/global para manejar la interrupción brusca
 void Spinner::handleSignal(int signal)
 {
     // Restaurar el cursor inmediatamente antes de terminar el proceso
-    std::cout << "\033[?25h\033[0m\n" << std::flush;
+    std::cout << "\033[?25h\033[0m\n"
+              << std::flush;
     std::exit(signal);
 }
 
 void Spinner::setupSignalHandlers()
 {
-    std::signal(SIGINT, Spinner::handleSignal);  // Interrupción de consola (Ctrl + C)
+    std::signal(SIGINT, Spinner::handleSignal); // Interrupción de consola (Ctrl + C)
     std::signal(SIGTERM, Spinner::handleSignal); // Solicitud de terminación
 }
-
-

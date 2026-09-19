@@ -43,8 +43,7 @@ typedef enum {
 /**
  * @brief array que contiene los diferentes tipos de spinners disponibles.
  */
-const std::array<std::pair<std::string, std::string>, 42> spinnerType = { {
-    { "dots", "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏" },
+const std::array<std::pair<std::string, std::string>, 42> spinnerType = { { { "dots", "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏" },
     { "dots2", "⣾⣽⣻⢿⡿⣟⣯⣷" },
     { "dots3", "⠋⠙⠚⠞⠖⠦⠴⠲⠳⠓" },
     { "dots4", "⠄⠆⠇⠋⠙⠸⠰⠠⠰⠸⠙⠋⠇⠆" },
@@ -85,8 +84,7 @@ const std::array<std::pair<std::string, std::string>, 42> spinnerType = { {
     { "toggle12", "☗☖" },
     { "arrow", "←↖↑↗→↘↓↙" },
     { "arrow2", "➞➟➠➡➠➟" },
-    { "triangle", "⬖⬘⬗⬙" },
-} };
+    { "triangle", "⬖⬘⬗⬙" }}};
 
 /**
  * @class Spinner
@@ -105,6 +103,7 @@ private:
     void hideCursor(bool hide = true);
     void setupSignalHandlers();
     static void handleSignal(int signal);
+
 public:
     Spinner();
     ~Spinner();
