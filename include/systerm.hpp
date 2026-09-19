@@ -19,6 +19,9 @@
 #include <thread>
 #include <vector>
 
+
+namespace fs = std::filesystem;
+
 struct CommandResult {
     int total = 0;
     int succeeded = 0;
@@ -42,13 +45,23 @@ private:
      */
     static std::string getLogFilePath()
     {
+        std::string path;
         const char* homeDir = std::getenv("HOME");
+        
         if (homeDir) {
-            return std::string(homeDir) + "/.spin.log";
+            path = std::string(homeDir) + "/.spin.log";
+        } else {
+            path = "spin.log"; // Fallback local si no existe $HOME
         }
-        return "spin.log"; // Fallback local si no existe $HOME
-    }
 
+        // Verificar si el archivo existe y si su tamaño supera 1 MB (1,048,576 bytes)
+        std::error_code ec;
+        if (fs::exists(path, ec) && fs::file_size(path, ec) >= 1024 * 1024) {
+            fs::remove(path, ec); // Elimina el archivo si supera el límite
+        }
+
+        return path;
+    }
     /**
      * @brief Guarda información de los comandos ejecutados.
      */
@@ -74,6 +87,8 @@ private:
         logFile << "Exit code: " << exitCode << "\n";
         logFile << "Estado: " << (exitCode == 0 ? "SUCCESS" : "FAILED") << "\n";
     }
+
+
 
     /**
      *  0 : Éxito
