@@ -1,50 +1,16 @@
-/**
- * @file spinners.hpp
- * @brief Librería para mostrar spinners animados en terminales.
- */
+#ifndef SPINNERS_HPP
+#define SPINNERS_HPP
 
-#ifndef _SPINNERS_HPP_
-#define _SPINNERS_HPP_
-
+#include <array>
 #include <atomic>
 #include <chrono>
-#include <csignal>
-#include <memory>
+#include <iostream>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
 
-#define SHOW_CURSOR "\u001b[?25h"
-#define HIDE_CURSOR "\u001b[?25l"
-
-#define FOREGROUND_COLOR "\x1b[38;5;" // ID m
-#define BACKGROUND_COLOR "\x1b[48;5;" // ID m
-
-struct StatusMessage {
-    std::string icon;
-    std::string text;
-};
-
-constexpr std::array<StatusMessage, 5> defaultStatus = { { { "✔", "Success" },
-    { "✖", "Error" },
-    { "⚠", "Warning" },
-    { "ℹ", "Information" },
-    { "➜", "Next" } } };
-//
-//
-typedef enum {
-    SPIN_SUCCESS,
-    SPIN_ERROR,
-    SPIN_WARNING,
-    SPIN_INFO,
-    SPIN_NEXT
-} SpinResult;
-
-/**
- * @brief array que contiene los diferentes tipos de spinners disponibles.
- */
-const std::array<std::pair<std::string, std::string>, 42> spinnerType = { {
-    { "dots", "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏" },
+const std::array<std::pair<std::string, std::string>, 42> spinnerType = { { { "dots", "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏" },
     { "dots2", "⣾⣽⣻⢿⡿⣟⣯⣷" },
     { "dots3", "⠋⠙⠚⠞⠖⠦⠴⠲⠳⠓" },
     { "dots4", "⠄⠆⠇⠋⠙⠸⠰⠠⠰⠸⠙⠋⠇⠆" },
@@ -85,52 +51,70 @@ const std::array<std::pair<std::string, std::string>, 42> spinnerType = { {
     { "toggle12", "☗☖" },
     { "arrow", "←↖↑↗→↘↓↙" },
     { "arrow2", "➞➟➠➡➠➟" },
-    { "triangle", "⬖⬘⬗⬙" },
-} };
+    { "triangle", "⬖⬘⬗⬙" } } };
 
-/**
- * @class Spinner
- * @brief Clase para mostrar animaciones de spinner en la terminal.
- */
+enum SpinResult {
+    SPIN_SUCCESS, SPIN_ERROR, SPIN_WARNING, SPIN_INFO, SPIN_NEXT
+};
+
+enum class SpinnerPosition { BEFORE, AFTER };
+enum class NewlineMode { OVERWRITE, APPEND };
+
 class Spinner {
 private:
-    int interval = 100; /**< Intervalo entre frames (ms) */
-    std::string text; /**< Texto acompañante */
-    std::unique_ptr<std::string> symbols; /**< Símbolos del spinner */
-    std::atomic<bool> stop_spinner { false }; /**< Control de ejecución */
-    std::string color = "15"; /**< Color del spinner */
-    std::thread t; /**< Hilo de animación */
-    std::chrono::time_point<std::chrono::steady_clock> start_time; /**< Tiempo de inicio */
+    int interval{100};
+    std::string text;
+    std::mutex text_mutex;
+    std::atomic<bool> is_paused{false};
+    std::atomic<bool> stop_spinner{false};
+    int color{15};
+    std::vector<std::string> frames;
+    std::thread t;
+    std::chrono::time_point<std::chrono::steady_clock> start_time;
+    std::ostream* stream{&std::cerr};
+    bool show_timer{false};
+    bool newline_mode{false};
+    SpinnerPosition position{SpinnerPosition::BEFORE};
+    std::string text_style{"normal"};
 
-    void hideCursor(bool hide = true);
-    void setupSignalHandlers();
-    static void handleSignal(int signal);
+    static std::vector<std::string> parseUtf8Frames(const std::string& raw);
+    static std::string ansiStyle(const std::string& style);
+    void hideCursor(bool hide);
+
 public:
     Spinner();
     ~Spinner();
 
-    // Control básico
+    Spinner(const Spinner&) = delete;
+    Spinner& operator=(const Spinner&) = delete;
+
+    Spinner& updateText(const std::string& new_text);
+    Spinner& setInterval(int ms);
+    Spinner& setText(const std::string& txt);
+    Spinner& setSymbols(const std::string& key);
+    Spinner& setCustomFrames(const std::vector<std::string>& custom_frames);
+    Spinner& setCustomFrames(const std::string& raw_frames);
+    Spinner& setColor(int ansi_color);
+    Spinner& setColor(const std::string& ansi_color);
+    Spinner& setOutputStream(std::ostream& os);
+    Spinner& withTimer(bool enable = true);
+    Spinner& setBold(bool enable = true);
+    Spinner& setTextStyle(const std::string& style);
+    Spinner& setPosition(SpinnerPosition pos);
+    Spinner& setPosition(const std::string& pos);
+    Spinner& setNewline(bool enable = true);
+
+    void pause();
+    void resume();
     void start();
     void stop();
+    void stopWithStatus(SpinResult result, const std::string& final_text = "");
 
-    // Configuración
-    Spinner& setInterval(int); // ms
-    Spinner& setText(const std::string&); // text
-    Spinner& setSymbols(const std::string&); // key
-    Spinner& setColor(const std::string&); // color
-    Spinner& setBackgroundColor(const std::string&); // color
-    Spinner& setStyle(const std::string&); // style
-    Spinner& setCustomFrames(const std::vector<std::string>&); // frames
-    Spinner& setPosition(int, int);
-    /*Spinner& suffixText();*/
-    void showStatus(SpinResult type, const std::string& text = "");
-    // Consulta
-    std::string getColor() const;
-    bool isRunning() const;
-    std::chrono::milliseconds getElapsedTime() const;
-    void showSymbols();
     static std::vector<std::string> getAvailableSpinners();
-    // Utilidades
+    static std::vector<std::string> parseFrames(const std::string& raw);
+    static bool isValidColor(int color);
+    static bool isValidTextStyle(const std::string& style);
+    static bool isValidPosition(const std::string& position);
 };
 
-#endif // _SPINNERS_HPP_
+#endif // SPINNERS_HPP
