@@ -90,6 +90,12 @@ int main(int argc, char* argv[])
 
     Spinner spinner;
 
+    if (argc <= 1) {
+        std::string sms = "Usage: spin --cmd";
+        spinner.stopWithStatus(SPIN_WARNING, sms);
+        return 1;
+    }
+
     if (options.is_set("color"))
         spinner.setColor(options["color"]);
     if (options.is_set("interval"))
@@ -104,8 +110,6 @@ int main(int argc, char* argv[])
         spinner.setPosition(options["position"]);
     if (options.is_set("text_style"))
         spinner.setTextStyle(options["text_style"]);
-    if (options.is_set("newline"))
-        spinner.setNewline(true);
 
     spinner.start();
     CommandResult result;
