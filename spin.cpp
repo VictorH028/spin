@@ -61,10 +61,10 @@ int main(int argc, char* argv[])
     result_group.add_option("-s", "--success").dest("success").help("Custom success message").metavar("TEXT");
 
     optparse::OptionGroup info_group("Information", "Show available options");
-    info_group.add_option("--show-colors", "--show_colors").dest("show_colors").help("Show list of 256 colors").action("store_true");
-    info_group.add_option("--show-style", "--show_style").dest("show_style").help("Show built-in spinner styles").action("store_true");
-    info_group.add_option("--show-text-styles", "--show_text_styles").dest("show_text_styles").help("Show available text styles").action("store_true");
-    info_group.add_option("--show-positions", "--show_positions").dest("show_positions").help("Show spinner positions").action("store_true");
+    info_group.add_option("--show-colors").dest("show_colors").help("Show list of 256 colors").action("store_true");
+    info_group.add_option("--show-style").dest("show_style").help("Show built-in spinner styles").action("store_true");
+    info_group.add_option("--show-text-styles").dest("show_text_styles").help("Show available text styles").action("store_true");
+    info_group.add_option("--show-positions").dest("show_positions").help("Show spinner positions").action("store_true");
 
     parser.add_option_group(info_group);
     parser.add_option_group(result_group);
