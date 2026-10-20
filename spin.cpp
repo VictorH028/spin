@@ -1,6 +1,7 @@
 #include "include/optparse.hpp"
 #include "include/spinners.hpp"
 #include "include/systerm.hpp"
+#include <algorithm>
 
 namespace {
 void print_colors()
@@ -60,16 +61,17 @@ int main(int argc, char* argv[])
     result_group.add_option("-s", "--success").dest("success").help("Custom success message").metavar("TEXT");
 
     optparse::OptionGroup info_group("Information", "Show available options");
-    info_group.add_option("--show_colors").dest("show_colors").help("Show list of 256 colors").action("store_true");
-    info_group.add_option("--show_style").dest("show_style").help("Show built-in spinner styles").action("store_true");
-    info_group.add_option("--show_text_styles").dest("show_text_styles").help("Show available text styles").action("store_true");
-    info_group.add_option("--show_positions").dest("show_positions").help("Show spinner positions").action("store_true");
+    info_group.add_option("--show-colors", "--show_colors").dest("show_colors").help("Show list of 256 colors").action("store_true");
+    info_group.add_option("--show-style", "--show_style").dest("show_style").help("Show built-in spinner styles").action("store_true");
+    info_group.add_option("--show-text-styles", "--show_text_styles").dest("show_text_styles").help("Show available text styles").action("store_true");
+    info_group.add_option("--show-positions", "--show_positions").dest("show_positions").help("Show spinner positions").action("store_true");
 
     parser.add_option_group(info_group);
     parser.add_option_group(result_group);
 
     const optparse::Values options = parser.parse_args(argc, argv);
 
+    // is_set() consulta por dest, no por el nombre del flag.
     if (options.is_set("show_colors")) {
         print_colors();
         return 0;
@@ -87,7 +89,6 @@ int main(int argc, char* argv[])
         print_positions();
         return 0;
     }
-
     Spinner spinner;
 
     if (argc <= 1) {
@@ -96,26 +97,65 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    if (options.is_set("color"))
-        spinner.setColor(options["color"]);
+    if (options.is_set("color")) {
+        const std::string raw = options["color"];
+        int value = -1;
+        try {
+            size_t consumed = 0;
+            value = std::stoi(raw, &consumed);
+            if (consumed != raw.size())
+                value = -1;
+        } catch (...) {
+        }
+        if (!Spinner::isValidColor(value)) {
+            spinner.stopWithStatus(SPIN_ERROR, "Invalid color: " + raw + " (expected 0-255)");
+            return 1;
+        }
+        spinner.setColor(value);
+    }
     if (options.is_set("interval"))
         spinner.setInterval(std::stoi(options["interval"]));
     if (options.is_set("text"))
         spinner.setText(options["text"]);
-    if (options.is_set("style"))
-        spinner.setSymbols(options["style"]);
+    if (options.is_set("style")) {
+        const std::string style = options["style"];
+        const auto names = Spinner::getAvailableSpinners();
+        if (std::find(names.begin(), names.end(), style) == names.end()) {
+            spinner.stopWithStatus(SPIN_ERROR, "Unknown style: " + style + " (see --show-style)");
+            return 1;
+        }
+        spinner.setSymbols(style);
+    }
     if (options.is_set("frames"))
         spinner.setCustomFrames(options["frames"]);
-    if (options.is_set("position"))
-        spinner.setPosition(options["position"]);
-    if (options.is_set("text_style"))
-        spinner.setTextStyle(options["text_style"]);
+    if (options.is_set("position")) {
+        const std::string pos = options["position"];
+        if (!Spinner::isValidPosition(pos)) {
+            spinner.stopWithStatus(SPIN_ERROR, "Invalid position: " + pos + " (before|after)");
+            return 1;
+        }
+        spinner.setPosition(pos);
+    }
+    if (options.is_set("text_style")) {
+        const std::string style = options["text_style"];
+        if (!Spinner::isValidTextStyle(style)) {
+            spinner.stopWithStatus(SPIN_ERROR, "Invalid text style: " + style);
+            return 1;
+        }
+        spinner.setTextStyle(style);
+    }
 
-    spinner.start();
+    if (!options.is_set("cmd")) {
+        spinner.stopWithStatus(SPIN_WARNING, "Usage: spin --cmd COMMAND");
+        return 1;
+    }
+
     CommandResult result;
-
-    if (options.is_set("cmd")) {
+    {
         const auto commands = SystemTermux::splitCommands(options["cmd"]);
+
+        // Arrancar SOLO aquí, con trabajo real.
+        spinner.start();
         result = SystemTermux::run_commands(commands, options.is_set("quiet"));
     }
 

@@ -291,7 +291,9 @@ test_cmd_with_stderr() {
 
 test_cmd_multiline() {
     local output
-    output=$("$SPIN_BIN" --quiet --cmd "printf 'line1\nline2\nline3\n'" 2>&1)
+    # Sin --quiet: este test valida el passthrough de salida, y --quiet
+    # suprime la salida por contrato (ver test_cmd_quiet_mode).
+    output=$("$SPIN_BIN" --cmd "printf 'line1\nline2\nline3\n'" 2>/dev/null)
     if grep -q "line1" <<<"$output" && \
        grep -q "line2" <<<"$output" && \
        grep -q "line3" <<<"$output"; then
@@ -483,8 +485,9 @@ test_unknown_option() {
 }
 
 test_cmd_with_unicode_output() {
+    # Sin --quiet: valida passthrough unicode, y --quiet suprime la salida.
     assert_output_contains "日本語テスト" \
-        "$SPIN_BIN" --quiet --cmd "echo 日本語テスト"
+        "$SPIN_BIN" --cmd "echo 日本語テスト"
 }
 
 test_cmd_exit_codes() {

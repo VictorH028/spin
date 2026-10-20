@@ -54,28 +54,39 @@ const std::array<std::pair<std::string, std::string>, 42> spinnerType = { { { "d
     { "triangle", "⬖⬘⬗⬙" } } };
 
 enum SpinResult {
-    SPIN_SUCCESS, SPIN_ERROR, SPIN_WARNING, SPIN_INFO, SPIN_NEXT
+    SPIN_SUCCESS,
+    SPIN_ERROR,
+    SPIN_WARNING,
+    SPIN_INFO,
+    SPIN_NEXT
 };
 
-enum class SpinnerPosition { BEFORE, AFTER };
-enum class NewlineMode { OVERWRITE, APPEND };
+enum class SpinnerPosition { BEFORE,
+    AFTER };
+enum class NewlineMode { OVERWRITE,
+    APPEND };
 
 class Spinner {
 private:
-    int interval{100};
+    int interval { 100 };
     std::string text;
     std::mutex text_mutex;
-    std::atomic<bool> is_paused{false};
-    std::atomic<bool> stop_spinner{false};
-    int color{15};
+    std::atomic<bool> is_paused { false };
+    std::atomic<bool> stop_spinner { false };
+    std::atomic<bool> cursor_hidden { false };
+    int color { 15 };
     std::vector<std::string> frames;
     std::thread t;
     std::chrono::time_point<std::chrono::steady_clock> start_time;
-    std::ostream* stream{&std::cerr};
-    bool show_timer{false};
-    bool newline_mode{false};
-    SpinnerPosition position{SpinnerPosition::BEFORE};
-    std::string text_style{"normal"};
+    std::ostream* stream { &std::cerr };
+    bool show_timer { false };
+    bool newline_mode { false };
+    SpinnerPosition position { SpinnerPosition::BEFORE };
+    std::string text_style { "normal" };
+
+    // NUEVO: retraso antes de pintar el primer frame.
+    // Si stop() llega antes, no se pinta nada (comandos rápidos no parpadean).
+    int warmup_ms { 100 };
 
     static std::vector<std::string> parseUtf8Frames(const std::string& raw);
     static std::string ansiStyle(const std::string& style);
@@ -103,6 +114,9 @@ public:
     Spinner& setPosition(SpinnerPosition pos);
     Spinner& setPosition(const std::string& pos);
     Spinner& setNewline(bool enable = true);
+
+    // NUEVO: control del warmup. 0 = pintar desde el primer instante.
+    Spinner& setWarmup(int ms);
 
     void pause();
     void resume();
