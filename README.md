@@ -79,12 +79,13 @@ Options:
                         Custom success message
 ```
 
+**Exit status:** `0` if every command succeeded, `1` if any command failed or `--cmd` was missing, `2` on option parse errors.
+
 **It also has an integrated manual.**
 `man spin`
 
 > [!NOTE]
-> **Predefined Symbol**
-> > circleHalves: ◐◓◑◒
+> List the 42 built-in styles with `spin --show-style` and pick one with `--style NAME`.
 
 ## Example 
 
@@ -94,30 +95,45 @@ Options:
 spin -t "Loading..." --cmd "sleep 3"
 ```
 
-```bash 
-echo "Hola mundo" | spin -t 
+**Custom frames and color:**
+
+```bash
+spin -c 230 --frames "⠋⠙⠚" -t "Working" --cmd "sleep 2"
 ```
-The option `--cmd` has parallel execution
+
+The option `--cmd` has parallel execution: separate the commands with commas and they run at the same time (one worker per core by default, tune it with `-j`).
 
 ```bash
 spin -c 230 --cmd "sleep 10, sleep 15, sleep 20"
 ```
 
 ```shell
-⊨ ps af                                                         ~
+$ spin --cmd "sleep 5, sleep 5" -t "demo" &
   PID TTY      STAT   TIME COMMAND
-20312 pts/0    S<sl   0:00 /data/data/com.termux/files/usr/bin/fis
-20410 pts/0    T<l    0:00  \_ spin -cmd sleep 10, sleep 20
-20414 pts/0    T<     0:00  |   \_ sleep 10
-20415 pts/0    T<     0:00  |   \_ sleep 20
+11713 pts/27   S<l    0:00 spin --cmd sleep 5, sleep 5 -t demo
+11718 pts/27   S<l    0:00  \_ sh -c -- (sleep 5) 2>&1
+11719 pts/27   S<l    0:00  \_ sh -c -- (sleep 5) 2>&1
 ```
 
-### Usage **for**
-```sh
+**Run a batch of packages:**
+
+```bash
 _pkgs=("pkg1" "pkg2" "pkg3")
-spin -cmd '$(for package in "${_pkgs[@]}"; do
-    echo "pkg install -y $package;"
-done)'
+spin --cmd "$(for package in "${_pkgs[@]}"; do
+    printf 'pkg install -y %s,' "$package"
+done)"
+```
+
+**See what the hardware can take:**
+
+```shell
+$ spin --show-system
+System:
+  Online cores:      8
+  Hardware threads:  8
+  Process limit:     19113
+  Safe workers:      8
+  Max frequency:     cpu0=2000MHz cpu1=2000MHz cpu2=2000MHz cpu3=2000MHz cpu4=2000MHz cpu5=2000MHz cpu6=2200MHz cpu7=2200MHz
 ```
 
 ## Programming
@@ -144,12 +160,12 @@ import time
 # Create a Spinner object
 s = spinners.Spinner()
 
-# Set.textnand)symbols 
-s.set_color("105")
+# Set text, symbols and color
 s.set_text("Cargando...")
-s.set_symbols("dots")
+s.set_symbols("growHorizontal")
+s.set_color("115")
 
-#Start and stop the spinner
+# Start and stop the spinner
 s.start()
 time.sleep(5)
 s.stop()
@@ -158,9 +174,10 @@ s.stop()
 
 ```cpp
 #include "spinners.hpp"
+#include <unistd.h>
 
-int main (int argc, char *argv[]) {
-    spinners::Spinner spinner;
+int main() {
+    Spinner spinner;
     spinner.setColor(105);
     spinner.setText("Loading..");
     spinner.setSymbols("dots");
@@ -170,6 +187,10 @@ int main (int argc, char *argv[]) {
     spinner.stop();
     return 0;
 }
+```
+
+```sh
+c++ -std=c++20 -I$PREFIX/local/include main.cpp -o main -pthread
 ```
 
 > [!NOTE]

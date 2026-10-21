@@ -1,64 +1,149 @@
-.TH spin 1 "Dec 2024" "" "General Commands Manual"
+.TH spin 1 "Oct 2026" "Beta:👣v5.0" "General Commands Manual"
 .nh
 .ad l
 .
 .SH NAME
-SPIN \- Spinner
+spin \- animated spinner for command line with parallel command execution
 .
 .SH SYNOPSIS
 .B spin
 .RI [ OPTION ]...
-.RI [ ARG ]
+.B --cmd
+.IR COMMAND [ , COMMAND ]...
 .
 .SH DESCRIPTION
 spin is a command line (CLI) tool written in C++ that displays an animated spinner while a background process is running. It is useful for visually indicating that a task is in progress, especially if the task takes a considerable amount of time.
+.
+.PP
+Commands passed to
+.B --cmd
+are separated by commas and executed in parallel, one shell per command, using up to the number of workers detected from the CPU cores and the system process limit. The exit status is 0 only if every command succeeded.
 .
 .SH OPTIONS
 .
 .SS General options:
 .TP
-.B -v, --version
-Show version 
-.TP
 .B -h, --help
 Display help and exit
 .TP
+.B --version
+Show version and exit
+.TP
 .B -t TEXT, --text=TEXT
-Text to show
+Text to show next to the spinner
 .TP
 .B -i INT, --interval=INT
-Interval in milliseconds
+Frame interval in milliseconds (default: 100)
 .TP
-.B -s STRING, --symbols=STRING
-Symbols the spinner
+.B --style=NAME
+Built-in spinner style name (see \fB--show-style\fR)
+.TP
+.B --frames=FRAMES
+Custom frames, e.g. \fB"⠋⠙⠚"\fR or \fB"one,two,three"\fR
+.TP
+.B --position=POSITION
+Spinner position: \fBbefore\fR (default) or \fBafter\fR the text
+.TP
+.B --text-style=STYLE
+Text style: \fBnormal\fR, \fBbold\fR, \fBdim\fR, \fBitalic\fR, \fBunderline\fR or \fBreverse\fR
 .TP
 .B --cmd=COMMAND
-Command to execute
+Command to execute. Separate multiple commands with commas to run them in parallel
 .TP
-.B -l, --list_symbols
-List available spinner symbols
+.B -c COLOR, --color=COLOR
+ANSI 256 text color (0-255)
 .TP
-.B -c, --color
-Change text color
+.B -q, --quiet
+Suppress command output (spinner and result messages included)
+.
+.SS Execution:
+Parallel command execution
 .TP
-.B --list_colors
-Show list colors 
-
-.SH Text
-.SS Show message
+.B -j N, --jobs=N
+Maximum number of parallel jobs. \fB0\fR (default) auto-detects from the online CPU cores bounded by the system process limit
 .TP
-.B --result            
-Display message after execution finishes
+.B --wake-threshold=N
+Number of queued commands that take the Android wake lock. Values below 1 disable it (default: 3)
 .TP
-.B --error=TEXT        
-To change the message
+.B --no-wake-lock
+Never take the Android wake lock, regardless of the queue length
 .TP
-.B --success=TEXT     
-To change the message
-
-.SH EXAMPLES 
-spin -t "Loading.." -c 105 --cmd "sleep 2" 
-
+.B --pin-workers
+Pin each worker to its own CPU core (useful on big.LITTLE SoCs)
+.TP
+.B --log=PATH
+Path of the execution log (default: \fI$HOME/.spin.log\fR, rotated at 1 MiB)
+.
+.SS Information:
+Show available options and exit
+.TP
+.B --show-colors
+Show the list of 256 ANSI colors
+.TP
+.B --show-style
+Show the built-in spinner styles
+.TP
+.B --show-text-styles
+Show the available text styles
+.TP
+.B --show-positions
+Show the spinner positions
+.TP
+.B --show-system
+Show the detected CPU topology (cores, process limit, safe workers, max frequencies)
+.
+.SS Result:
+Display status after completion
+.TP
+.B --result
+Display a message after execution finishes
+.TP
+.B -e TEXT, --error=TEXT
+Custom message for the failure case
+.TP
+.B -s TEXT, --success=TEXT
+Custom message for the success case
+.
+.SH EXIT STATUS
+.TP
+.B 0
+All commands succeeded
+.TP
+.B 1
+At least one command failed, or --cmd was missing/invalid options were given
+.TP
+.B 2
+Option parse error
+.
+.SH FILES
+.TP
+.I $HOME/.spin.log
+Default execution log (one entry per command with timestamp, PID, exit code and status)
+.
+.SH EXAMPLES
+Show a spinner with custom text while sleeping:
+.PP
+.RS
+spin -t "Loading.." -c 105 --cmd "sleep 2"
+.RE
+.PP
+Run three commands in parallel with two workers:
+.PP
+.RS
+spin -j 2 --cmd "sleep 10, sleep 15, sleep 20"
+.RE
+.PP
+Install several packages, showing a result message:
+.PP
+.RS
+spin --result --success "All installed" --cmd "pkg install -y git, pkg install -y curl"
+.RE
+.PP
+Pin the workers and log to a custom file:
+.PP
+.RS
+spin --pin-workers --log $HOME/build.log --cmd "make, make test"
+.RE
+.
 .SH SEE ALSO
-https://victorh028.github.io/spin/ 
-
+https://victorh028.github.io/spin/
