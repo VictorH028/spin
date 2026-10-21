@@ -42,25 +42,41 @@ Options:
   -t TEXT, --text=TEXT  Text to show
   -i INT, --interval=INT
                         Interval in milliseconds
-  -s NAME, --style=NAME
-                        Style the spinner
+  --style=NAME          Built-in spinner style name
+  --frames=FRAMES       Custom frames: "⠋⠙⠚" or "one,two,three"
+  --position=POSITION   Spinner position: before or after
+  --text-style=STYLE    Text style: normal,bold,dim,italic,underline,reverse
   --cmd=COMMAND         Command to execute
   -c COLOR, --color=COLOR
-                        Change text color
-  -q, --quiet           Run quietly, suppressing output
+                        ANSI 256 color (0-255)
+  -q, --quiet           Suppress command output
+
+  Execution:
+    Parallel command execution
+
+    -j N, --jobs=N      Max parallel jobs (0 = auto-detect from CPU/process limit)
+    --wake-threshold=N  Commands in queue that take the Android wake lock (<1 disables)
+    --no-wake-lock      Never take the Android wake lock
+    --pin-workers       Pin each worker to its own CPU core
+    --log=PATH          Log file path (default: $HOME/.spin.log)
 
   Information:
-    To show information
+    Show available options
 
-    --show_colors       Show list colors
-    --show_style        Show list the symbols
-  
-  Text:
-    Show message
+    --show-colors       Show list of 256 colors
+    --show-style        Show built-in spinner styles
+    --show-text-styles  Show available text styles
+    --show-positions    Show spinner positions
+    --show-system       Show detected CPU topology and execution limits
+
+  Result:
+    Display status after completion
 
     --result            Display message after execution finishes
-    --error=TEXT        To change the message
-    --success=TEXT      To change the message
+    -e TEXT, --error=TEXT
+                        Custom error message
+    -s TEXT, --success=TEXT
+                        Custom success message
 ```
 
 **It also has an integrated manual.**

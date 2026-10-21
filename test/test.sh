@@ -190,8 +190,8 @@ test_version_flag() {
 # TESTS: ESTILOS
 # ============================================================================
 test_show_style() {
-    assert_exit_code 0 "$SPIN_BIN" --show_style &&
-    assert_output_contains "[a-zA-Z]" "$SPIN_BIN" --show_style
+    assert_exit_code 0 "$SPIN_BIN" --show-style &&
+    assert_output_contains "[a-zA-Z]" "$SPIN_BIN" --show-style
 }
 
 test_valid_style() {
@@ -216,7 +216,7 @@ test_invalid_style_handling() {
 # TESTS: COLORES
 # ============================================================================
 test_show_colors() {
-    assert_exit_code 0 "$SPIN_BIN" --show_colors
+    assert_exit_code 0 "$SPIN_BIN" --show-colors
 }
 
 test_valid_color() {
@@ -540,6 +540,143 @@ test_concurrent_execution() {
 }
 
 # ============================================================================
+# TESTS: OPCIONES DE EJECUCIÓN (-j/--jobs, --wake-threshold, --no-wake-lock,
+# --pin-workers, --log, --show-system)
+# ============================================================================
+test_help_execution_options() {
+    assert_output_contains "\\-\\-jobs" "$SPIN_BIN" --help &&
+    assert_output_contains "\\-\\-wake-threshold" "$SPIN_BIN" --help &&
+    assert_output_contains "\\-\\-no-wake-lock" "$SPIN_BIN" --help &&
+    assert_output_contains "\\-\\-pin-workers" "$SPIN_BIN" --help &&
+    assert_output_contains "\\-\\-log" "$SPIN_BIN" --help &&
+    assert_output_contains "\\-\\-show-system" "$SPIN_BIN" --help
+}
+
+test_jobs_valid() {
+    assert_exit_code 0 "$SPIN_BIN" -j 2 --cmd "true"
+}
+
+test_jobs_zero_autodetect() {
+    # 0 = autodetectar (núcleos acotados por límite de procesos)
+    assert_exit_code 0 "$SPIN_BIN" --jobs 0 --cmd "true"
+}
+
+test_jobs_negative() {
+    local output
+    output=$("$SPIN_BIN" --jobs -1 --cmd "true" 2>&1)
+    local rc=$?
+    if [[ $rc -ne 0 ]] || grep -qi "invalid" <<<"$output"; then
+        return 0
+    fi
+    log_fail "--jobs -1 fue aceptado silenciosamente (rc=$rc)"
+    return 1
+}
+
+test_jobs_invalid_value() {
+    # optparse con type=int debe rechazar "abc" con rc!=0
+    assert_exit_code 2 "$SPIN_BIN" --jobs abc --cmd "true"
+}
+
+test_jobs_single_command() {
+    # Varios jobs con un solo comando: no debe fallar
+    assert_exit_code 0 "$SPIN_BIN" -j 8 --cmd "true"
+}
+
+test_no_wake_lock_parallel() {
+    # 3 comandos activarían wake lock por defecto; --no-wake-lock no debe colgar
+    timeout 10 "$SPIN_BIN" --no-wake-lock --cmd "true, true, true" &>/dev/null
+    local rc=$?
+    if [[ $rc -eq 124 ]]; then
+        log_fail "--no-wake-lock con 3 comandos se colgó (timeout 10s)"
+        return 1
+    fi
+    [[ $rc -eq 0 ]] && return 0
+    log_fail "rc=$rc con --no-wake-lock --cmd 'true, true, true'"
+    return 1
+}
+
+test_wake_threshold_high() {
+    # Umbral por encima del nº de comandos: wake lock no debe activarse (ni colgar)
+    timeout 10 "$SPIN_BIN" --wake-threshold 100 --cmd "true, true" &>/dev/null
+    local rc=$?
+    [[ $rc -eq 124 ]] && { log_fail "se colgó con --wake-threshold 100"; return 1; }
+    [[ $rc -eq 0 ]] && return 0
+    log_fail "rc=$rc con --wake-threshold 100"
+    return 1
+}
+
+test_wake_threshold_one() {
+    # Umbral 1: wake lock con cualquier lote, no debe colgar
+    timeout 10 "$SPIN_BIN" --wake-threshold 1 --cmd "true, true, true" &>/dev/null
+    local rc=$?
+    [[ $rc -eq 124 ]] && { log_fail "se colgó con --wake-threshold 1"; return 1; }
+    [[ $rc -eq 0 ]] && return 0
+    log_fail "rc=$rc con --wake-threshold 1"
+    return 1
+}
+
+test_wake_threshold_zero_disables() {
+    # <1 desactiva el wake lock
+    timeout 10 "$SPIN_BIN" --wake-threshold 0 --cmd "true, true, true" &>/dev/null
+    local rc=$?
+    [[ $rc -eq 124 ]] && { log_fail "se colgó con --wake-threshold 0"; return 1; }
+    [[ $rc -eq 0 ]] && return 0
+    log_fail "rc=$rc con --wake-threshold 0"
+    return 1
+}
+
+test_pin_workers_parallel() {
+    timeout 10 "$SPIN_BIN" --pin-workers --cmd "true, true, true, true" &>/dev/null
+    local rc=$?
+    [[ $rc -eq 124 ]] && { log_fail "--pin-workers se colgó"; return 1; }
+    [[ $rc -eq 0 ]] && return 0
+    log_fail "rc=$rc con --pin-workers"
+    return 1
+}
+
+test_log_custom_path() {
+    local logfile="$TEST_TMP_DIR/spin_custom.log"
+    assert_exit_code 0 "$SPIN_BIN" --log "$logfile" --cmd "true" || return 1
+    assert_file_exists "$logfile" || return 1
+    if grep -q "Estado: SUCCESS" "$logfile"; then
+        return 0
+    fi
+    log_fail "El log no contiene 'Estado: SUCCESS': $logfile"
+    return 1
+}
+
+test_log_failure_recorded() {
+    local logfile="$TEST_TMP_DIR/spin_fail.log"
+    "$SPIN_BIN" --log "$logfile" --cmd "false" &>/dev/null
+    if grep -q "Estado: FAILED" "$logfile" 2>/dev/null; then
+        return 0
+    fi
+    log_fail "El log no contiene 'Estado: FAILED': $logfile"
+    return 1
+}
+
+test_show_system() {
+    assert_exit_code 0 "$SPIN_BIN" --show-system &&
+    assert_output_contains "Online cores" "$SPIN_BIN" --show-system &&
+    assert_output_contains "Safe workers" "$SPIN_BIN" --show-system
+}
+
+test_execution_combined() {
+    # Toda la configuración de ejecución a la vez
+    local logfile="$TEST_TMP_DIR/spin_combo.log"
+    timeout 10 "$SPIN_BIN" -j 2 --pin-workers --no-wake-lock \
+        --wake-threshold 50 --log "$logfile" \
+        --cmd "true, true, true" &>/dev/null
+    local rc=$?
+    [[ $rc -eq 124 ]] && { log_fail "combinación completa se colgó"; return 1; }
+    if [[ $rc -ne 0 ]]; then
+        log_fail "combinación completa devolvió rc=$rc"
+        return 1
+    fi
+    assert_file_exists "$logfile"
+}
+
+# ============================================================================
 # MAIN
 # ============================================================================
 print_banner() {
@@ -640,6 +777,22 @@ main() {
     run_test "Propagación exit codes"          test_cmd_exit_codes
     run_test "Ejecución repetida (x10)"        test_repeated_execution
     run_test "Ejecución concurrente (x5)"      test_concurrent_execution
+
+    run_test "Ayuda opciones de ejecución"     test_help_execution_options
+    run_test "Jobs válido (-j 2)"              test_jobs_valid
+    run_test "Jobs autodetect (--jobs 0)"      test_jobs_zero_autodetect
+    run_test "Jobs negativo rechazado"         test_jobs_negative
+    run_test "Jobs no numérico rechazado"      test_jobs_invalid_value
+    run_test "Jobs con un solo comando"        test_jobs_single_command
+    run_test "Sin wake lock paralelo"          test_no_wake_lock_parallel
+    run_test "Wake threshold alto"             test_wake_threshold_high
+    run_test "Wake threshold 1"                test_wake_threshold_one
+    run_test "Wake threshold 0 desactiva"      test_wake_threshold_zero_disables
+    run_test "Pin workers paralelo"            test_pin_workers_parallel
+    run_test "Log en ruta personalizada"       test_log_custom_path
+    run_test "Log registra fallo"              test_log_failure_recorded
+    run_test "Mostrar sistema (--show-system)" test_show_system
+    run_test "Combinación de ejecución"        test_execution_combined
 
     print_summary
 }
